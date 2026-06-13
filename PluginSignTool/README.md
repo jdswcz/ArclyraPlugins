@@ -16,7 +16,9 @@ Arclyra plugin packages are ZIP archives with a root `plugin/` folder. The signi
 - a package signature created with your developer private key;
 - signature format and algorithm metadata.
 
-Arclyra uses this metadata to associate a package with a validated developer identity and detect package tampering.
+Arclyra uses this metadata to associate a package with a validated developer identity and detect package tampering. Signed packages allow Arclyra Writing Studio to show the validated developer name from the signature metadata during installation and plugin management.
+
+Arclyra Writing Studio supports installing unsigned `.arcplugin` packages, but unsigned installs require an extra confirmation step and display the author as **Unknown author** even when the package manifest includes an `author` value. Sign packages that you distribute publicly so users can verify who published them and whether they were modified after signing.
 
 ## Interactive mode
 

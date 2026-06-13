@@ -21,3 +21,9 @@ dotnet build Arclyra.PluginTemplate/Arclyra.PluginTemplate.csproj
 ```
 
 The SDK packaging target runs `package-arcplugin.ps1` after build and writes an `.arcplugin` archive to the project output folder when packaging is enabled.
+
+## Signing and unsigned installs
+
+Before distributing your `.arcplugin` publicly, sign it with `Arclyra.PluginSignTool` so Arclyra Writing Studio can associate the package with your validated developer identity and detect package tampering. Signed packages let Arclyra show the validated developer name from the signature metadata during installation and plugin management.
+
+Arclyra Writing Studio supports installing unsigned plugin packages for development and private sharing, but users must complete an extra confirmation step. Unsigned packages display **Unknown author** even if `plugin.json` includes an `author` value.

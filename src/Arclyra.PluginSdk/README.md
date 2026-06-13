@@ -164,6 +164,12 @@ Arclyra validates packages before installation. Packages are rejected when they:
 - declare invalid entry assembly/type paths;
 - request reserved capabilities that are not accepted in production manifests.
 
+## Plugin signatures
+
+Arclyra packages may include root-level `plugin.package.json` signature metadata for the contents of the `plugin/` folder. Signing is intended to let Arclyra associate a package with a known developer identity and detect package tampering. Signed packages allow Arclyra Writing Studio to show the validated developer name from the signature metadata during installation and plugin management.
+
+Arclyra Writing Studio also supports installing unsigned `.arcplugin` packages. Unsigned packages require an extra confirmation step during installation, and Arclyra displays their author as **Unknown author** even when `plugin.json` contains an `author` value. Use signed packages for public distribution so users can verify who published the plugin and whether the package contents changed after signing.
+
 ## Capabilities and security
 
 > [!WARNING]
