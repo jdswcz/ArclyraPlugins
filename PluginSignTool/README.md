@@ -23,7 +23,7 @@ Arclyra uses this metadata to associate a package with a validated developer ide
 Run the tool without arguments to start the prompt-driven workflow:
 
 ```powershell
-dotnet run --project Arclyra.PluginSignTool/Arclyra.PluginSignTool.csproj
+Arclyra.PluginSignTool.exe
 ```
 
 The interactive menu can:
