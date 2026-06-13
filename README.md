@@ -7,7 +7,17 @@ This guide is intended for plugin developers. For a working reference, build and
 ## Quick start: create, package, and deploy a plugin
 
 1. **Create a .NET 8 class library.** Use `net8.0-windows` when the plugin contributes WPF UI.
-2. **Reference `Arclyra.PluginSdk`.** Do not copy `Arclyra.PluginSdk.dll` into the final package; Arclyra supplies the SDK assembly at runtime so host and plugin use the same contract types.
+2. **Install `Arclyra.PluginSdk` from NuGet.** Add the SDK package from [NuGet](https://www.nuget.org/packages/Arclyra.PluginSdk/) using either the .NET CLI or Package Manager Console:
+
+   ```bash
+   dotnet add package Arclyra.PluginSdk
+   ```
+
+   ```powershell
+   Install-Package Arclyra.PluginSdk
+   ```
+
+   Do not copy `Arclyra.PluginSdk.dll` into the final package; Arclyra supplies the SDK assembly at runtime so host and plugin use the same contract types.
 3. **Implement `IArclyraPlugin`.** Keep `Id` stable and make it match `plugin.json`.
 4. **Declare a `plugin.json` manifest.** Include entry assembly/type, version, host compatibility, and the least set of capabilities your plugin needs.
 5. **Build and stage files under a `plugin/` folder.** Include `plugin/plugin.json`, your entry DLL, non-host managed dependencies, and required assets.
@@ -28,7 +38,7 @@ Minimal project file for a WPF-capable plugin:
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Arclyra.PluginSdk\Arclyra.PluginSdk.csproj" Private="false" />
+    <PackageReference Include="Arclyra.PluginSdk" Version="1.0.0" PrivateAssets="all" ExcludeAssets="runtime" />
   </ItemGroup>
 </Project>
 ```
