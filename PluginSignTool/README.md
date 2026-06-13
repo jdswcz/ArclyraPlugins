@@ -39,19 +39,19 @@ When selecting option `1`, the tool displays the developer identity notice befor
 Show help:
 
 ```powershell
-dotnet run --project Arclyra.PluginSignTool/Arclyra.PluginSignTool.csproj -- --help
+Arclyra.PluginSignTool.exe --help
 ```
 
 Generate a developer key pair:
 
 ```powershell
-dotnet run --project Arclyra.PluginSignTool/Arclyra.PluginSignTool.csproj -- generate-developer-key --developer-name "Example Developer" --private-key developer-private.pem --public-key developer-public.pem
+Arclyra.PluginSignTool.exe --generate-developer-key --developer-name "Example Developer" --private-key developer-private.pem --public-key developer-public.pem
 ```
 
 The default RSA key size is `4096`. You can override it with `--key-size`:
 
 ```powershell
-dotnet run --project Arclyra.PluginSignTool/Arclyra.PluginSignTool.csproj -- generate-developer-key --developer-name "Example Developer" --private-key developer-private.pem --public-key developer-public.pem --key-size 4096
+Arclyra.PluginSignTool.exe --generate-developer-key --developer-name "Example Developer" --private-key developer-private.pem --public-key developer-public.pem --key-size 4096
 ```
 
 ## Developer validation workflow
@@ -73,13 +73,13 @@ Build and package your plugin first. The `.arcplugin` archive must contain a roo
 Sign in place:
 
 ```powershell
-dotnet run --project Arclyra.PluginSignTool/Arclyra.PluginSignTool.csproj -- sign-package --package MyPlugin.arcplugin --developer-name "Example Developer" --developer-private-key developer-private.pem --developer-public-key developer-public.pem --developer-signature developer.sig
+Arclyra.PluginSignTool.exe --sign-package --package MyPlugin.arcplugin --developer-name "Example Developer" --developer-private-key developer-private.pem --developer-public-key developer-public.pem --developer-signature developer.sig
 ```
 
 Write a signed copy instead of overwriting the input package:
 
 ```powershell
-dotnet run --project Arclyra.PluginSignTool/Arclyra.PluginSignTool.csproj -- sign-package --package MyPlugin.arcplugin --developer-name "Example Developer" --developer-private-key developer-private.pem --developer-public-key developer-public.pem --developer-signature developer.sig --output MyPlugin.Signed.arcplugin
+Arclyra.PluginSignTool.exe --sign-package --package MyPlugin.arcplugin --developer-name "Example Developer" --developer-private-key developer-private.pem --developer-public-key developer-public.pem --developer-signature developer.sig --output MyPlugin.Signed.arcplugin
 ```
 
 The tool extracts the package to a temporary folder, computes the canonical package hash, writes `plugin.package.json`, and recreates the `.arcplugin` archive.
@@ -89,7 +89,7 @@ The tool extracts the package to a temporary folder, computes the canonical pack
 If you already have a `plugin.package.json` signature metadata file, embed it into a package:
 
 ```powershell
-dotnet run --project Arclyra.PluginSignTool/Arclyra.PluginSignTool.csproj -- embed-signature --package MyPlugin.arcplugin --signature plugin.package.json --output MyPlugin.Signed.arcplugin
+Arclyra.PluginSignTool.exe --embed-signature --package MyPlugin.arcplugin --signature plugin.package.json --output MyPlugin.Signed.arcplugin
 ```
 
 Omit `--output` to overwrite the original package.
