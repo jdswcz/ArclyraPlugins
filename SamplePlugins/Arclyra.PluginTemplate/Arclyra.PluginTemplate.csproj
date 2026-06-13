@@ -10,14 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Arclyra.PluginSdk\Arclyra.PluginSdk.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="package-arcplugin.ps1" />
   </ItemGroup>
 
-  <Import Project="..\Arclyra.PluginSdk\build\Arclyra.PluginSdk.targets" />
+  <ItemGroup>
+    <PackageReference Include="Arclyra.PluginSdk" Version="1.0.0" />
+  </ItemGroup>
 
 </Project>
