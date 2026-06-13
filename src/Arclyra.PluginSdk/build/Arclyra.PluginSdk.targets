@@ -1,0 +1,27 @@
+<Project>
+  <PropertyGroup>
+    <ArclyraPluginPackageName Condition="'$(ArclyraPluginPackageName)' == ''">$(AssemblyName).arcplugin</ArclyraPluginPackageName>
+    <ArclyraPluginManifestFile Condition="'$(ArclyraPluginManifestFile)' == ''">$(MSBuildProjectDirectory)\plugin.json</ArclyraPluginManifestFile>
+    <ArclyraPluginPackageScript Condition="'$(ArclyraPluginPackageScript)' == ''">$(MSBuildThisFileDirectory)..\tools\package-arcplugin.ps1</ArclyraPluginPackageScript>
+    <ArclyraPluginPowerShellExe Condition="'$(ArclyraPluginPowerShellExe)' == '' And '$(OS)' == 'Windows_NT'">powershell</ArclyraPluginPowerShellExe>
+    <ArclyraPluginPowerShellExe Condition="'$(ArclyraPluginPowerShellExe)' == '' And '$(OS)' != 'Windows_NT'">pwsh</ArclyraPluginPowerShellExe>
+    <ArclyraPluginPackageOnBuild Condition="'$(ArclyraPluginPackageOnBuild)' == ''">true</ArclyraPluginPackageOnBuild>
+    <ArclyraPluginSignToolPath Condition="'$(ArclyraPluginSignToolPath)' == ''"></ArclyraPluginSignToolPath>
+    <ArclyraPluginDeveloperName Condition="'$(ArclyraPluginDeveloperName)' == ''"></ArclyraPluginDeveloperName>
+    <ArclyraPluginDeveloperPrivateKey Condition="'$(ArclyraPluginDeveloperPrivateKey)' == ''"></ArclyraPluginDeveloperPrivateKey>
+    <ArclyraPluginDeveloperPublicKey Condition="'$(ArclyraPluginDeveloperPublicKey)' == ''"></ArclyraPluginDeveloperPublicKey>
+    <ArclyraPluginDeveloperSignature Condition="'$(ArclyraPluginDeveloperSignature)' == ''"></ArclyraPluginDeveloperSignature>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ArclyraPluginHostSharedAssembly Include="Arclyra.PluginSdk.dll" Condition="'@(ArclyraPluginHostSharedAssembly)' == ''" />
+  </ItemGroup>
+
+  <Target Name="PackArclyraPlugin"
+          AfterTargets="Build"
+          DependsOnTargets="Build"
+          Condition="'$(DesignTimeBuild)' != 'true' And '$(ArclyraPluginPackageOnBuild)' == 'true'">
+    <!-- Append a dot so quoted directory arguments do not end with a backslash on Windows. -->
+    <Exec Command="&quot;$(ArclyraPluginPowerShellExe)&quot; -NoProfile -ExecutionPolicy Bypass -File &quot;$(ArclyraPluginPackageScript)&quot; -ProjectDir &quot;$(MSBuildProjectDirectory)&quot; -OutputDir &quot;$(TargetDir).&quot; -IntermediateOutputDir &quot;$(IntermediateOutputPath).&quot; -PackageName &quot;$(ArclyraPluginPackageName)&quot; -ManifestFile &quot;$(ArclyraPluginManifestFile)&quot; -PluginAssemblyName &quot;$(TargetFileName)&quot; -HostSharedAssemblies @(ArclyraPluginHostSharedAssembly->'&quot;%(Identity)&quot;', ' ') -SignToolPath &quot;$(ArclyraPluginSignToolPath)&quot; -DeveloperName &quot;$(ArclyraPluginDeveloperName)&quot; -DeveloperPrivateKey &quot;$(ArclyraPluginDeveloperPrivateKey)&quot; -DeveloperPublicKey &quot;$(ArclyraPluginDeveloperPublicKey)&quot; -DeveloperSignature &quot;$(ArclyraPluginDeveloperSignature)&quot;" />
+  </Target>
+</Project>

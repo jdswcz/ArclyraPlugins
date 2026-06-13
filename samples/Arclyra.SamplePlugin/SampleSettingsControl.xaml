@@ -1,0 +1,55 @@
+<UserControl x:Class="Arclyra.SamplePlugin.SampleSettingsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             MinWidth="420">
+    <Border Padding="18"
+            Background="#242834"
+            BorderBrush="#5F6780"
+            BorderThickness="1"
+            CornerRadius="12">
+        <StackPanel>
+            <TextBlock Text="Arclyra Sample Plugin Settings (Demo Only)"
+                       FontSize="18"
+                       FontWeight="SemiBold"
+                       Foreground="White" />
+            <TextBlock Text="This sample page is intentionally non-essential. It demonstrates plugin-hosted settings UI, menu commands, optional AI provider ownership, and read-only SDK data access."
+                       Margin="0,8,0,14"
+                       TextWrapping="Wrap"
+                       Foreground="Gainsboro" />
+
+            <TextBlock Text="Host details"
+                       FontWeight="SemiBold"
+                       Foreground="White" />
+            <TextBlock x:Name="HostDetailsText"
+                       Margin="0,4,0,14"
+                       TextWrapping="Wrap"
+                       Foreground="LightGray" />
+
+            <TextBlock Text="Optional demo AI provider"
+                       FontWeight="SemiBold"
+                       Foreground="White" />
+            <TextBlock x:Name="AiProviderStatusText"
+                       Margin="0,4,0,10"
+                       TextWrapping="Wrap"
+                       Foreground="LightGray" />
+            <WrapPanel Margin="0,0,0,14">
+                <Button Content="Register demo provider"
+                        Padding="12,6"
+                        Margin="0,0,8,8"
+                        Click="RegisterDemoProvider_Click" />
+                <Button Content="Remove demo provider"
+                        Padding="12,6"
+                        Margin="0,0,8,8"
+                        Click="RemoveDemoProvider_Click" />
+            </WrapPanel>
+
+            <TextBlock Text="Read-only data snapshot"
+                       FontWeight="SemiBold"
+                       Foreground="White" />
+            <TextBlock x:Name="DataSnapshotText"
+                       Margin="0,4,0,0"
+                       TextWrapping="Wrap"
+                       Foreground="LightGray" />
+        </StackPanel>
+    </Border>
+</UserControl>

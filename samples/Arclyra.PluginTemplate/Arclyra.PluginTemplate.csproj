@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ArclyraPluginPackageName>Arclyra.PluginTemplate.arcplugin</ArclyraPluginPackageName>
+    <ArclyraPluginPackageScript>$(MSBuildProjectDirectory)\package-arcplugin.ps1</ArclyraPluginPackageScript>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Arclyra.PluginSdk\Arclyra.PluginSdk.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="package-arcplugin.ps1" />
+  </ItemGroup>
+
+  <Import Project="..\Arclyra.PluginSdk\build\Arclyra.PluginSdk.targets" />
+
+</Project>
