@@ -184,6 +184,7 @@ Capabilities are a host-facing declaration and a service gate for Arclyra SDK AP
 | Settings | `settings.read` | Read plugin-safe user preference snapshots and receive settings-change events when event requirements are also met. |
 | AI providers | `aiProviders.read` | Read AI provider configuration snapshots. |
 | AI providers | `aiProviders.write` | Add, update, or remove AI provider configurations owned by the current plugin. |
+| AI generation | `ai.generation` | Register a plugin-owned generator that receives rendered Smart Builder prompts and returns chapter drafts directly. |
 | Events | `events.subscribe` | Subscribe to stable host events. |
 | Events | `events.story` | Subscribe to story lifecycle events. |
 | Events | `events.chapter` | Subscribe to chapter lifecycle/content events. |
@@ -219,6 +220,28 @@ If you wish to sign your plugins, contact Arclyra at **developers@arclyra.app**.
 
 The SDK namespace is `Arclyra.PluginSdk`.
 
+### Direct AI generation
+
+Plugins can bridge Arclyra to an AI backend without using the embedded Chromium browser. Declare the `ai.generation` capability, then register a generator with `IPluginAiProviderService.AddOrUpdateGenerator`. The registered provider appears in the AI generation provider selector. When selected, Arclyra shows a direct generation panel, sends the current story guide and rendered chapter prompt to the plugin, displays progress messages reported by the plugin, and applies the returned chapter draft to the generated-draft field.
+
+```csharp
+context.AiProviderService.AddOrUpdateGenerator(
+    new PluginAiConfiguration(
+        Id: "example-direct-ai",
+        Name: "Example Direct AI",
+        Url: string.Empty,
+        PromptPasteScript: string.Empty,
+        ReadGeneratedChapterScript: string.Empty,
+        PluginOwnerId: null,
+        PluginConfigurationId: "example-direct-ai"),
+    async (request, progress, cancellationToken) =>
+    {
+        progress.Report(new PluginAiGenerationProgress("AI is generating a chapter draft…"));
+        string draft = await GenerateDraftAsync(request.ChapterPrompt, cancellationToken);
+        return new PluginAiGenerationResult(draft, "Generated chapter draft received.");
+    });
+```
+
 ### Lifecycle and context
 
 - `IArclyraPlugin`: plugin entry contract with stable `Id`, display `Name`, `InitializeAsync`, and `ShutdownAsync`.
@@ -230,7 +253,7 @@ The SDK namespace is `Arclyra.PluginSdk`.
 - `IPluginCommandRegistry.RegisterCommand(PluginCommandRegistration)`: registers an executable plugin command.
 - `PluginCommandRegistration`: command id, display name, async execute callback, optional description.
 - `IPluginUiRegistry.RegisterMenuItem(PluginMenuItemRegistration)`: places a registered command in a host menu path.
-- `PluginMenuItemRegistration`: menu path, display name, command id, sort order, and optional tool tip.
+- `PluginMenuItemRegistration`: menu path, display header, command id, and sort order.
 
 Use globally unique command ids, preferably prefixed with your plugin id.
 
@@ -238,6 +261,7 @@ Use globally unique command ids, preferably prefixed with your plugin id.
 
 - `IPluginUiRegistry.RegisterSettingsPage(PluginSettingsPageRegistration)`: settings pages; requires `ui.settings`.
 - `IPluginUiRegistry.RegisterPanel(PluginPanelRegistration)`: dockable/hosted panels; requires `ui.workspacePanel`.
+- `IPluginUiRegistry.OpenPanel(panelId)`: asks Arclyra to open a previously registered workspace panel; requires `ui.workspacePanel`.
 - `IPluginUiRegistry.RegisterStoryOverviewPanel(PluginStoryOverviewPanelRegistration)`: story overview panels; requires `ui.storyOverview`.
 - `IPluginUiRegistry.RegisterStoryListItemButton(PluginStoryListItemButtonRegistration)`: story-list row buttons; requires `ui.storyListActions`.
 - `IPluginUiRegistry.RegisterNewStoryWizardStep(PluginNewStoryWizardStepRegistration)`: optional wizard steps; requires `ui.newStoryWizard`.
@@ -297,6 +321,9 @@ Validators inspect composed prompt details and return `PluginPromptValidationMes
 - `GetConfigurations`; requires `aiProviders.read`;
 - `AddOrUpdateConfiguration`; requires `aiProviders.write` and only creates/updates configurations owned by the current plugin;
 - `RemovePluginConfiguration`; requires `aiProviders.write` and only removes configurations owned by the current plugin.
+- `AddOrUpdateGenerator`; requires `ai.generation` and registers a plugin-owned direct-generation provider backed by a `PluginAiGenerationHandler`.
+
+Direct generators receive `PluginAiGenerationRequest` values containing story-guide and chapter-prompt text, can report `PluginAiGenerationProgress`, and return `PluginAiGenerationResult` with the generated chapter draft.
 
 `PluginAiConfiguration` includes host id, display name, URL, prompt-paste script, generated-content readback script, plugin owner id, and stable plugin configuration id. Be transparent with users about browser automation scripts and external services.
 

@@ -247,7 +247,7 @@ context.AiProviderService.AddOrUpdateGenerator(
 - `IPluginCommandRegistry.RegisterCommand(PluginCommandRegistration)`: registers an executable plugin command.
 - `PluginCommandRegistration`: command id, display name, async execute callback, optional description.
 - `IPluginUiRegistry.RegisterMenuItem(PluginMenuItemRegistration)`: places a registered command in a host menu path.
-- `PluginMenuItemRegistration`: menu path, display name, command id, sort order, and optional tool tip.
+- `PluginMenuItemRegistration`: menu path, display header, command id, and sort order.
 
 Use globally unique command ids, preferably prefixed with your plugin id.
 
@@ -255,6 +255,7 @@ Use globally unique command ids, preferably prefixed with your plugin id.
 
 - `IPluginUiRegistry.RegisterSettingsPage(PluginSettingsPageRegistration)`: settings pages; requires `ui.settings`.
 - `IPluginUiRegistry.RegisterPanel(PluginPanelRegistration)`: dockable/hosted panels; requires `ui.workspacePanel`.
+- `IPluginUiRegistry.OpenPanel(panelId)`: asks Arclyra to open a previously registered workspace panel; requires `ui.workspacePanel`.
 - `IPluginUiRegistry.RegisterStoryOverviewPanel(PluginStoryOverviewPanelRegistration)`: story overview panels; requires `ui.storyOverview`.
 - `IPluginUiRegistry.RegisterStoryListItemButton(PluginStoryListItemButtonRegistration)`: story-list row buttons; requires `ui.storyListActions`.
 - `IPluginUiRegistry.RegisterNewStoryWizardStep(PluginNewStoryWizardStepRegistration)`: optional wizard steps; requires `ui.newStoryWizard`.
@@ -314,6 +315,9 @@ Validators inspect composed prompt details and return `PluginPromptValidationMes
 - `GetConfigurations`; requires `aiProviders.read`;
 - `AddOrUpdateConfiguration`; requires `aiProviders.write` and only creates/updates configurations owned by the current plugin;
 - `RemovePluginConfiguration`; requires `aiProviders.write` and only removes configurations owned by the current plugin.
+- `AddOrUpdateGenerator`; requires `ai.generation` and registers a plugin-owned direct-generation provider backed by a `PluginAiGenerationHandler`.
+
+Direct generators receive `PluginAiGenerationRequest` values containing story-guide and chapter-prompt text, can report `PluginAiGenerationProgress`, and return `PluginAiGenerationResult` with the generated chapter draft.
 
 `PluginAiConfiguration` includes host id, display name, URL, prompt-paste script, generated-content readback script, plugin owner id, and stable plugin configuration id. Be transparent with users about browser automation scripts and external services.
 
