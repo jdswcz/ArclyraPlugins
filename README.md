@@ -209,7 +209,9 @@ Capabilities are a host-facing declaration and a service gate for Arclyra SDK AP
 
 ### Plugin signatures
 
-Arclyra packages may include root-level `plugin.package.json` signature metadata for the contents of the `plugin/` folder. Signing is intended to let Arclyra associate a package with a known developer identity and detect package tampering.
+Arclyra packages may include root-level `plugin.package.json` signature metadata for the contents of the `plugin/` folder. Signing is intended to let Arclyra associate a package with a known developer identity and detect package tampering. Signed packages allow Arclyra Writing Studio to show the validated developer name from the signature metadata during installation and plugin management.
+
+Arclyra Writing Studio also supports installing unsigned `.arcplugin` packages. Unsigned packages require an extra confirmation step during installation, and Arclyra displays their author as **Unknown author** even when `plugin.json` contains an `author` value. Use signed packages for public distribution so users can verify who published the plugin and whether the package contents changed after signing.
 
 If you wish to sign your plugins, contact Arclyra at **developers@arclyra.app**. We will provide the current signing requirements and developer onboarding details. Do not invent your own signature metadata format for public distribution.
 
