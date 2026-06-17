@@ -26,6 +26,13 @@ public interface IPluginUiRegistry : IPluginEditorRegistry
     void RegisterPanel(PluginPanelRegistration registration);
 
     /// <summary>
+    /// Requests that Arclyra open one of this plugin's registered workspace panels.
+    /// Requires the <see cref="PluginCapabilities.UiWorkspacePanel" /> capability.
+    /// </summary>
+    /// <param name="panelId">The stable panel id previously registered by this plugin.</param>
+    void OpenPanel(string panelId);
+
+    /// <summary>
     /// Registers a panel contributed to the story overview region.
     /// Requires the <see cref="PluginCapabilities.UiStoryOverview" /> capability.
     /// </summary>

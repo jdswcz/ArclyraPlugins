@@ -41,6 +41,11 @@ public static class PluginCapabilities
     public const string AiProvidersWrite = "aiProviders.write";
 
     /// <summary>
+    /// Allows a plugin to act as an AI generation bridge and return generated chapter drafts directly to Arclyra.
+    /// </summary>
+    public const string AiGeneration = "ai.generation";
+
+    /// <summary>
     /// Allows a plugin to subscribe to host events.
     /// </summary>
     public const string EventsSubscribe = "events.subscribe";
@@ -147,6 +152,7 @@ public static class PluginCapabilities
         SettingsRead,
         AiProvidersRead,
         AiProvidersWrite,
+        AiGeneration,
         EventsSubscribe,
         EventsStory,
         EventsChapter,

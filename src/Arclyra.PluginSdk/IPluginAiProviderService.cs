@@ -32,4 +32,13 @@ public interface IPluginAiProviderService
     /// <param name="configurationId">The host configuration id or stable plugin configuration id to remove.</param>
     /// <returns><see langword="true" /> when a configuration was removed; otherwise, <see langword="false" />.</returns>
     bool RemovePluginConfiguration(string configurationId);
+
+    /// <summary>
+    /// Adds or updates a plugin-owned AI provider that generates chapter drafts directly, without Arclyra's embedded browser.
+    /// Requires the <see cref="PluginCapabilities.AiGeneration" /> capability.
+    /// </summary>
+    /// <param name="configuration">The provider metadata shown in Arclyra's AI generation provider selector.</param>
+    /// <param name="handler">The async generator invoked with the rendered Smart Builder prompt.</param>
+    /// <returns>The registered configuration with host and plugin ownership metadata populated.</returns>
+    PluginAiConfiguration AddOrUpdateGenerator(PluginAiConfiguration configuration, PluginAiGenerationHandler handler);
 }

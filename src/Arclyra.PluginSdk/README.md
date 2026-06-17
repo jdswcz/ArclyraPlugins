@@ -182,6 +182,7 @@ Stable capabilities include:
 | Settings | `settings.read` | Read plugin-safe user preference snapshots and receive settings-change events when event requirements are also met. |
 | AI providers | `aiProviders.read` | Read AI provider configuration snapshots. |
 | AI providers | `aiProviders.write` | Add, update, or remove AI provider configurations owned by the current plugin. |
+| AI generation | `ai.generation` | Register a plugin-owned generator that receives rendered Smart Builder prompts and returns chapter drafts directly. |
 | Events | `events.subscribe` | Subscribe to stable host events. |
 | Events | `events.story` | Subscribe to story lifecycle events. |
 | Events | `events.chapter` | Subscribe to chapter lifecycle/content events. |
@@ -206,6 +207,28 @@ Stable capabilities include:
 ## Categorized SDK API reference
 
 The SDK namespace is `Arclyra.PluginSdk`.
+
+### Direct AI generation
+
+Plugins can bridge Arclyra to an AI backend without using the embedded Chromium browser. Declare the `ai.generation` capability, then register a generator with `IPluginAiProviderService.AddOrUpdateGenerator`. The registered provider appears in the AI generation provider selector. When selected, Arclyra shows a direct generation panel, sends the current story guide and rendered chapter prompt to the plugin, displays progress messages reported by the plugin, and applies the returned chapter draft to the generated-draft field.
+
+```csharp
+context.AiProviderService.AddOrUpdateGenerator(
+    new PluginAiConfiguration(
+        Id: "example-direct-ai",
+        Name: "Example Direct AI",
+        Url: string.Empty,
+        PromptPasteScript: string.Empty,
+        ReadGeneratedChapterScript: string.Empty,
+        PluginOwnerId: null,
+        PluginConfigurationId: "example-direct-ai"),
+    async (request, progress, cancellationToken) =>
+    {
+        progress.Report(new PluginAiGenerationProgress("AI is generating a chapter draft…"));
+        string draft = await GenerateDraftAsync(request.ChapterPrompt, cancellationToken);
+        return new PluginAiGenerationResult(draft, "Generated chapter draft received.");
+    });
+```
 
 ### Lifecycle and context
 
@@ -332,10 +355,11 @@ Recommended release workflow:
 
 1. Build in Release mode.
 2. Verify the `.arcplugin` archive contents and manifest metadata.
-3. Configure the signing properties above, or run `Arclyra.PluginSignTool sign-package` after packaging, to add the root `plugin.package.json` signature sidecar.
-4. Authenticode-sign plugin assemblies if your distribution policy requires signed binaries.
-5. Generate a checksum for the final `.arcplugin`.
-6. Publish the archive, checksum, version, release notes, and support contact together.
+3. Generate a developer key pair with `Arclyra.PluginSignTool generate-developer-key --developer-name "Name" --private-key developer-private.pem --public-key developer-public.pem`, then submit only the public key to Arclyra to receive a master-generated developer signature.
+4. Configure the signing properties above, or run `Arclyra.PluginSignTool sign-package` after packaging, to add the root `plugin.package.json` signature sidecar.
+5. Authenticode-sign plugin assemblies if your distribution policy requires signed binaries.
+6. Generate a checksum for the final `.arcplugin`.
+7. Publish the archive, checksum, version, release notes, and support contact together.
 
 If you wish to sign your plugins, contact Arclyra at **developers@arclyra.app** for current signing requirements and developer onboarding details. Do not invent your own signature metadata format for public distribution.
 
