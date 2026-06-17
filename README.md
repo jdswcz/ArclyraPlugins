@@ -4,6 +4,11 @@ Arclyra plugins extend Arclyra Writing Studio with optional commands, menu items
 
 This guide is intended for plugin developers. For a working reference, build and inspect `Arclyra.SamplePlugin`.
 
+## Arclyra resources
+
+- Visit the [Arclyra project website](https://arclyra.app) for product information, downloads, and user-facing updates.
+- Install Arclyra Writing Studio from the [Microsoft Store](https://apps.microsoft.com/detail/9NLMBMM5GJ17).
+
 ## Quick start: create, package, and deploy a plugin
 
 1. **Create a .NET 8 class library.** Use `net8.0-windows` when the plugin contributes WPF UI.
