@@ -1,8 +1,8 @@
 {
   "id": "com.arclyra.plugins.sample",
   "name": "Arclyra Sample Plugin",
-  "version": "1.4.0",
-  "description": "A demo-only sample plugin that demonstrates Arclyra menu commands, settings pages, workspace panels, Story Overview, Story List action, and New Story Wizard and Entry Management UI hooks, Smart Builder extension points, optional plugin-owned AI provider registration, logging, lifecycle hooks, and read-only data access when permitted.",
+  "version": "1.6.0",
+  "description": "A demo-only sample plugin that demonstrates Arclyra commands, menus, dialogs, settings pages, workspace panels, editor replacements, Story Overview, Story List actions, New Story Wizard and Entry Management UI hooks, Smart Builder extension points, prompt context/source APIs, optional plugin-owned AI provider registration, direct AI generation, AI generation paste actions and browser-window inspection, preferences/license/metadata snapshots, logging, lifecycle hooks, host events, and read/write story data access when permitted.",
   "author": "Arclyra",
   "entryAssembly": "Arclyra.SamplePlugin.dll",
   "entryType": "Arclyra.SamplePlugin.SamplePlugin",
@@ -13,6 +13,9 @@
     "prompt.write",
     "aiProviders.read",
     "aiProviders.write",
+    "ai.generation",
+    "aiGeneration.browserAccess",
+    "events.subscribe",
     "ui.settings",
     "ui.workspacePanel",
     "ui.smartBuilder",
@@ -21,6 +24,16 @@
     "ui.storyOverview",
     "ui.storyListActions",
     "ui.newStoryWizard",
-    "ui.entryManagement"
+    "ui.entryManagement",
+    "story.write",
+    "settings.read",
+    "events.story",
+    "events.chapter",
+    "events.generatedDraft",
+    "events.promptDetail",
+    "events.aiProvider",
+    "events.transfer",
+    "ui.editors",
+    "ui.aiGenerationPasteActions"
   ]
 }

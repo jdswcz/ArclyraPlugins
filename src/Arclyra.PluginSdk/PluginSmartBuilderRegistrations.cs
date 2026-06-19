@@ -3,7 +3,7 @@ using System.Windows;
 namespace Arclyra.PluginSdk;
 
 /// <summary>
-/// Describes a Smart Builder toolbar action contributed by a plugin.
+/// Describes a guided chapter setup toolbar action contributed by a plugin.
 /// </summary>
 public sealed record PluginSmartBuilderToolbarRegistration(
     string ActionId,
@@ -13,7 +13,7 @@ public sealed record PluginSmartBuilderToolbarRegistration(
     string? ToolTip = null);
 
 /// <summary>
-/// Describes a Smart Builder sidebar panel contributed by a plugin.
+/// Describes a guided chapter setup sidebar panel contributed by a plugin.
 /// </summary>
 public sealed record PluginSmartBuilderSidebarRegistration(
     string PanelId,
@@ -23,7 +23,7 @@ public sealed record PluginSmartBuilderSidebarRegistration(
     string? Description = null);
 
 /// <summary>
-/// Describes Smart Builder content hosted below the prompt rows.
+/// Describes guided chapter setup content hosted below the prompt rows.
 /// </summary>
 public sealed record PluginSmartBuilderBelowPromptContentRegistration(
     string ContentId,
@@ -33,7 +33,7 @@ public sealed record PluginSmartBuilderBelowPromptContentRegistration(
     string? Description = null);
 
 /// <summary>
-/// Describes an action shown in the host Smart Builder chapter actions menu.
+/// Describes an action shown in the host guided chapter setup actions menu.
 /// </summary>
 public sealed record PluginSmartBuilderChapterActionRegistration(
     string ActionId,
@@ -43,7 +43,7 @@ public sealed record PluginSmartBuilderChapterActionRegistration(
     string? ToolTip = null);
 
 /// <summary>
-/// Describes an action shown for each Smart Builder prompt row.
+/// Describes an action shown for each guided chapter setup prompt row.
 /// </summary>
 public sealed record PluginPromptRowActionRegistration(
     string ActionId,
@@ -53,7 +53,7 @@ public sealed record PluginPromptRowActionRegistration(
     string? ToolTip = null);
 
 /// <summary>
-/// Describes a validator invoked during Smart Builder prompt composition.
+/// Describes a validator invoked during guided chapter setup prompt composition.
 /// </summary>
 public sealed record PluginPromptValidatorRegistration(
     string ValidatorId,
@@ -63,7 +63,7 @@ public sealed record PluginPromptValidatorRegistration(
     int SortOrder = 0);
 
 /// <summary>
-/// Describes a transform invoked during Smart Builder prompt composition.
+/// Describes a transform invoked during guided chapter setup prompt composition.
 /// </summary>
 public sealed record PluginPromptTransformRegistration(
     string TransformId,

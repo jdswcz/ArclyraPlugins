@@ -58,7 +58,7 @@ public interface IPluginContext
     IPluginPromptContextService PromptContextService { get; }
 
     /// <summary>
-    /// Gets the capability-gated service used to register Smart Builder UI contributions and prompt transforms.
+    /// Gets the capability-gated service used to register guided chapter setup UI contributions and prompt transforms.
     /// </summary>
     IPluginSmartBuilderService SmartBuilderService { get; }
 
@@ -66,4 +66,14 @@ public interface IPluginContext
     /// Gets the capability-gated service used to read host user preference snapshots.
     /// </summary>
     IPluginPreferencesService PreferencesService { get; }
+
+    /// <summary>
+    /// Gets the read-only service used to inspect coarse host license state.
+    /// </summary>
+    IPluginLicenseService LicenseService { get; }
+
+    /// <summary>
+    /// Gets the capability-gated service used to inspect the AI generation window and access its browser control.
+    /// </summary>
+    IPluginAiGenerationWindowService AiGenerationWindowService { get; }
 }

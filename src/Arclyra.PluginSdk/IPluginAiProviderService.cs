@@ -38,7 +38,7 @@ public interface IPluginAiProviderService
     /// Requires the <see cref="PluginCapabilities.AiGeneration" /> capability.
     /// </summary>
     /// <param name="configuration">The provider metadata shown in Arclyra's AI generation provider selector.</param>
-    /// <param name="handler">The async generator invoked with the rendered Smart Builder prompt.</param>
+    /// <param name="handler">The async generator invoked with the rendered guided chapter setup prompt.</param>
     /// <returns>The registered configuration with host and plugin ownership metadata populated.</returns>
     PluginAiConfiguration AddOrUpdateGenerator(PluginAiConfiguration configuration, PluginAiGenerationHandler handler);
 }

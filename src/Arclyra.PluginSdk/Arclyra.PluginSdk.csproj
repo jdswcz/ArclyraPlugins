@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <PackageId>Arclyra.PluginSdk</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>Arclyra</Authors>
     <Description>Reference assemblies, host contracts, and MSBuild packaging targets for building Arclyra Writing Studio plugins.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>

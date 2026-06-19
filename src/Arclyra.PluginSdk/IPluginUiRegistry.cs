@@ -51,8 +51,15 @@ public interface IPluginUiRegistry : IPluginEditorRegistry
     void RegisterNewStoryWizardStep(PluginNewStoryWizardStepRegistration registration);
 
     /// <summary>
-    /// Registers a panel contributed to the prompt detail entry-management UI.
+    /// Registers a panel contributed to the prompt setup UI.
     /// Requires the <see cref="PluginCapabilities.UiEntryManagement" /> capability.
     /// </summary>
     void RegisterEntryManagementPanel(PluginEntryManagementPanelRegistration registration);
+
+    /// <summary>
+    /// Registers an action contributed next to the AI generation paste controls.
+    /// Requires the <see cref="PluginCapabilities.UiAiGenerationPasteActions" /> capability.
+    /// Browser automation remains restricted to <see cref="PluginCapabilities.AiGenerationBrowserAccess" /> through IPluginAiGenerationWindowService.
+    /// </summary>
+    void RegisterAiGenerationPasteAction(PluginAiGenerationPasteActionRegistration registration);
 }

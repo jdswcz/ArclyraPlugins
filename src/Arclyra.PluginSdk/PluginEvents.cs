@@ -36,6 +36,10 @@ public static class PluginEventNames
     public const string AiProviderChanged = "aiProvider.changed";
     public const string AiProviderRemoved = "aiProvider.removed";
 
+    public const string AiGenerationWindowOpened = "aiGenerationWindow.opened";
+    public const string AiGenerationWindowClosed = "aiGenerationWindow.closed";
+    public const string AiGenerationSelectedProviderChanged = "aiGeneration.selectedProviderChanged";
+
     /// <summary>
     /// Published when host user preferences are saved. Subscriptions require both events.subscribe and settings.read.
     /// </summary>
@@ -136,3 +140,8 @@ public sealed record PluginEditorEvent(
     string? ChapterId,
     int? ChapterNumber,
     string? ErrorMessage = null) : PluginEventDto(EventName);
+
+public sealed record PluginAiGenerationWindowEvent(
+    string EventName,
+    bool IsWindowOpen,
+    PluginAiConfiguration? SelectedProvider) : PluginEventDto(EventName);

@@ -11,12 +11,17 @@ namespace Arclyra.SamplePlugin;
 public sealed class SamplePlugin : IArclyraPlugin
 {
     internal const string DemoAiProviderConfigurationId = "sample.demo-ai-provider";
+    internal const string DemoAiGeneratorConfigurationId = "sample.direct-ai-generator";
 
     private const string ShowCapabilitiesCommandId = "com.arclyra.plugins.sample.showCapabilities";
     private const string WriteDiagnosticsCommandId = "com.arclyra.plugins.sample.writeDiagnostics";
     private const string RegisterDemoAiProviderCommandId = "com.arclyra.plugins.sample.registerDemoAiProvider";
     private const string RemoveDemoAiProviderCommandId = "com.arclyra.plugins.sample.removeDemoAiProvider";
+    private const string InspectAiGenerationWindowCommandId = "com.arclyra.plugins.sample.inspectAiGenerationWindow";
     private const string SmartBuilderToolbarActionId = "com.arclyra.plugins.sample.smartBuilder.showPromptSummary";
+    private const string SmartBuilderChapterActionId = "com.arclyra.plugins.sample.smartBuilder.chapterAction";
+    private const string AiGenerationPasteActionId = "com.arclyra.plugins.sample.aiGeneration.pasteAction";
+    private const string EditorIdPrefix = "com.arclyra.plugins.sample.editor";
     private const string SmartBuilderSidebarPanelId = "com.arclyra.plugins.sample.smartBuilder.sidebar";
     private const string SmartBuilderBelowPromptContentId = "com.arclyra.plugins.sample.smartBuilder.belowPrompt";
     private const string SmartBuilderRowActionId = "com.arclyra.plugins.sample.smartBuilder.inspectRow";
@@ -55,6 +60,11 @@ public sealed class SamplePlugin : IArclyraPlugin
         RegisterNewStoryWizardExtensions(context);
         RegisterRuntimePromptDetails(context);
         RegisterEntryManagementExtensions(context);
+        RegisterEditorExtensions(context);
+        RegisterAiGenerationPasteActions(context);
+        RegisterDemoAiGenerator(context);
+        RegisterHostEventSubscriptions(context);
+        RegisterAiGenerationWindowEvents(context);
 
         return Task.CompletedTask;
     }
@@ -77,6 +87,17 @@ public sealed class SamplePlugin : IArclyraPlugin
             PromptPasteScript: "console.info('Arclyra sample plugin demo provider: prompt paste script invoked. No external service is contacted.');",
             ReadGeneratedChapterScript: "return 'Demo-only sample provider. Replace this provider with a real plugin-owned configuration before using AI generation.';",
             PluginConfigurationId: DemoAiProviderConfigurationId);
+    }
+
+    internal static PluginAiConfiguration CreateDemoAiGeneratorConfiguration()
+    {
+        return new PluginAiConfiguration(
+            Id: string.Empty,
+            Name: "Sample Direct AI Generator",
+            Url: string.Empty,
+            PromptPasteScript: string.Empty,
+            ReadGeneratedChapterScript: string.Empty,
+            PluginConfigurationId: DemoAiGeneratorConfigurationId);
     }
 
     internal static string GetDemoProviderStatus(IPluginContext context)
@@ -115,6 +136,9 @@ public sealed class SamplePlugin : IArclyraPlugin
         AddPromptSummary(context, lines);
         AddSmartBuilderSummary(context, lines);
         AddAiProviderSummary(context, lines);
+        AddAiGenerationWindowSummary(context, lines);
+        AddPreferencesAndLicenseSummary(context, lines);
+        AddPluginMetadataSummary(context, lines);
 
         return string.Join(Environment.NewLine, lines);
     }
@@ -167,6 +191,129 @@ public sealed class SamplePlugin : IArclyraPlugin
         }
     }
 
+    private static void RegisterDemoAiGenerator(IPluginContext context)
+    {
+        try
+        {
+            PluginAiConfiguration savedConfiguration = context.AiProviderService.AddOrUpdateGenerator(
+                CreateDemoAiGeneratorConfiguration(),
+                GenerateSampleChapterDraftAsync);
+            context.Logger.LogInformation($"Registered sample direct AI generator '{savedConfiguration.Name}' ({savedConfiguration.Id}).");
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            context.Logger.LogWarning($"Direct AI generation demo registration is not permitted for this plugin manifest: {exception.Message}");
+        }
+        catch (InvalidOperationException exception)
+        {
+            context.Logger.LogWarning($"Direct AI generation demo registration is unavailable: {exception.Message}");
+        }
+    }
+
+    private static async Task<PluginAiGenerationResult> GenerateSampleChapterDraftAsync(
+        PluginAiGenerationRequest request,
+        IProgress<PluginAiGenerationProgress> progress,
+        CancellationToken cancellationToken)
+    {
+        progress.Report(new PluginAiGenerationProgress("Sample plugin is reading the rendered Smart Builder prompt…"));
+        await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+
+        progress.Report(new PluginAiGenerationProgress("Sample plugin is preparing demo-only scene beats…"));
+        await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+
+        progress.Report(new PluginAiGenerationProgress("Sample plugin is composing a demo-only chapter draft…"));
+        await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+
+        progress.Report(new PluginAiGenerationProgress("Sample plugin is polishing the generated draft…"));
+        await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+
+        progress.Report(new PluginAiGenerationProgress("Sample plugin is finalizing the response…"));
+        await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+
+        string promptPreview = string.IsNullOrWhiteSpace(request.ChapterPrompt)
+            ? "No chapter prompt was supplied."
+            : TrimForSampleDraft(request.ChapterPrompt, 900);
+
+        string storyGuidePreview = string.IsNullOrWhiteSpace(request.StoryGuide)
+            ? "No story guide was supplied."
+            : TrimForSampleDraft(request.StoryGuide, 500);
+
+        string draft =
+            "# Sample Plugin Generated Draft\n\n" +
+            "This is demo-only generated content returned directly by Arclyra Sample Plugin. " +
+            "It demonstrates that a plugin can receive the Smart Builder prompt, report status, and return a chapter draft without using the embedded browser.\n\n" +
+            "## Story guide preview\n" +
+            storyGuidePreview +
+            "\n\n## Chapter prompt preview\n" +
+            promptPreview +
+            "\n\n## Demo scene\n" +
+            "The protagonist pauses at the threshold, reviews the goal, chooses one concrete action, and leaves the scene changed. " +
+            "Replace this sample handler with a real AI service integration in production plugins.";
+
+        progress.Report(new PluginAiGenerationProgress("Sample plugin finished the demo draft.", IsGenerating: false));
+        return new PluginAiGenerationResult(draft, "Sample plugin returned a demo-only generated chapter draft.");
+    }
+
+    private static string TrimForSampleDraft(string text, int maxCharacters)
+    {
+        string normalized = text.Replace("\r\n", "\n", StringComparison.Ordinal).Trim();
+        if (normalized.Length <= maxCharacters)
+            return normalized;
+
+        return normalized[..maxCharacters] + "…";
+    }
+
+    private static void AddAiGenerationWindowSummary(IPluginContext context, List<string> lines)
+    {
+        lines.Add(GetAiGenerationWindowStatusAsync(context).GetAwaiter().GetResult());
+    }
+
+    private static async Task<string> GetAiGenerationWindowStatusAsync(IPluginContext context)
+    {
+        PluginAiConfiguration? provider = context.AiGenerationWindowService.SelectedProvider;
+        string providerText = provider == null ? "none" : $"{provider.Name} ({provider.Id})";
+        string browserText;
+
+        try
+        {
+            PluginBrowserAutomationResult<PluginAiConfiguration?> result =
+                await context.AiGenerationWindowService.ReadSelectedProviderAsync();
+            browserText = result.Success
+                ? "Host-mediated browser automation is available to the plugin."
+                : $"Host-mediated browser automation is not available: {result.StatusMessage}";
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            browserText = $"Host-mediated browser automation is not permitted: {exception.Message}";
+        }
+
+        return $"AI Generation window open: {context.AiGenerationWindowService.IsWindowOpen}; selected provider: {providerText}; {browserText}";
+    }
+
+    private static void RegisterAiGenerationWindowEvents(IPluginContext context)
+    {
+        try
+        {
+            SubscribeAiGenerationWindowEvent(context, PluginEventNames.AiGenerationWindowOpened);
+            SubscribeAiGenerationWindowEvent(context, PluginEventNames.AiGenerationWindowClosed);
+            SubscribeAiGenerationWindowEvent(context, PluginEventNames.AiGenerationSelectedProviderChanged);
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            context.Logger.LogWarning($"AI Generation window event subscription is not permitted: {exception.Message}");
+        }
+    }
+
+    private static void SubscribeAiGenerationWindowEvent(IPluginContext context, string eventName)
+    {
+        context.EventBus.Subscribe<PluginAiGenerationWindowEvent>(eventName, (eventContext, payload, cancellationToken) =>
+        {
+            string provider = payload.SelectedProvider == null ? "none" : payload.SelectedProvider.Name;
+            context.Logger.LogInformation($"Sample plugin received {eventContext.EventName}: open={payload.IsWindowOpen}, selectedProvider={provider}.");
+            return Task.CompletedTask;
+        });
+    }
+
     private static void RegisterCommands(IPluginContext context)
     {
         context.CommandRegistry.RegisterCommand(new PluginCommandRegistration(
@@ -180,12 +327,15 @@ public sealed class SamplePlugin : IArclyraPlugin
                     "• Menu commands\n" +
                     "• A settings page\n" +
                     "• A workspace panel\n" +
-                    "• Smart Builder toolbar, row, sidebar, below-prompt, validator, and transform hooks\n" +
+                    "• Smart Builder toolbar, chapter action, row, sidebar, below-prompt, validator, and transform hooks\n" +
                     "• Story overview title/synopsis editing through host-mediated UI context\n" +
                     "• A story-list row action button with the clicked story context\n" +
                     "• New-story wizard draft field reading and editing through host-mediated UI context\n" +
                     "• Entry Management UI customization with prompt detail CRUD buttons\n" +
-                    "• Optional plugin-owned AI provider registration\n" +
+                    "• Optional plugin-owned AI provider registration, direct AI generation, and AI paste actions\n" +
+                    "• Plugin editor replacements for supported host editing surfaces\n" +
+                    "• Preferences, license, plugin metadata, and typed host event snapshots\n" +
+                    "• AI Generation window state, selected-provider events, and host-mediated browser automation\n" +
                     "• Read-only story/prompt/provider snapshots when permitted\n\n" +
                     GetReadOnlyDataSummary(context));
                 return Task.CompletedTask;
@@ -195,17 +345,29 @@ public sealed class SamplePlugin : IArclyraPlugin
         context.CommandRegistry.RegisterCommand(new PluginCommandRegistration(
             WriteDiagnosticsCommandId,
             "Write Sample Plugin Diagnostics",
-            _ =>
+            async _ =>
             {
                 context.Logger.LogInformation($"Sample plugin directory: {context.PluginDirectory}");
                 context.Logger.LogInformation($"Arclyra host version: {context.HostVersion}");
                 context.Logger.LogInformation(GetReadOnlyDataSummary(context));
                 context.Logger.LogInformation(GetDemoProviderStatus(context));
-                context.Logger.LogInformation("Smart Builder demo hooks plus story overview and new-story wizard demo UI hooks are registered.");
+                context.Logger.LogInformation(await GetAiGenerationWindowStatusAsync(context));
+                context.Logger.LogInformation("Smart Builder demo hooks, editor demos, paste action, direct AI generation demo, story overview, and new-story wizard demo UI hooks are registered.");
                 context.Logger.LogWarning("Demo-only warning log entry from the Arclyra Sample Plugin.");
-                return Task.CompletedTask;
             },
             "Writes demo-only information and warning messages to the plugin log."));
+
+
+        context.CommandRegistry.RegisterCommand(new PluginCommandRegistration(
+            InspectAiGenerationWindowCommandId,
+            "Inspect AI Generation Window",
+            async _ =>
+            {
+                string message = await GetAiGenerationWindowStatusAsync(context);
+                context.Logger.LogInformation(message);
+                context.DialogService.ShowInfo("Arclyra Sample Plugin", message);
+            },
+            "Shows whether AI Generation is open, which provider is selected, and whether host-mediated browser automation is available."));
 
         context.CommandRegistry.RegisterCommand(new PluginCommandRegistration(
             RegisterDemoAiProviderCommandId,
@@ -426,6 +588,19 @@ public sealed class SamplePlugin : IArclyraPlugin
                     "Plugins can place read-only or interactive content below rendered prompt rows. This sample keeps the UI safe and demo-only."),
                 SortOrder: 10,
                 Description: "Demonstrates content hosted below Smart Builder prompt rows."));
+
+            context.SmartBuilderService.RegisterChapterAction(new PluginSmartBuilderChapterActionRegistration(
+                SmartBuilderChapterActionId,
+                "Sample Chapter Action",
+                chapterContext =>
+                {
+                    context.DialogService.ShowInfo(
+                        "Sample Smart Builder Chapter Action",
+                        $"Story: {chapterContext.StoryName}\nChapter: {(chapterContext.ChapterNumber?.ToString() ?? "not selected")}\nOutline characters: {chapterContext.ChapterOutlineText.Length}\nRendered prompt rows: {chapterContext.Prompt.Rows.Count}");
+                    return Task.CompletedTask;
+                },
+                SortOrder: 10,
+                ToolTip: "Demonstrates a plugin action with chapter outline context."));
 
             context.SmartBuilderService.RegisterPromptRowAction(new PluginPromptRowActionRegistration(
                 SmartBuilderRowActionId,
@@ -783,6 +958,155 @@ public sealed class SamplePlugin : IArclyraPlugin
             "This dialog is shown by a sample plugin Smart Builder row action.";
     }
 
+    private static void RegisterEditorExtensions(IPluginContext context)
+    {
+        try
+        {
+            foreach (PluginEditorTarget target in Enum.GetValues<PluginEditorTarget>())
+            {
+                context.UiRegistry.RegisterEditor(new PluginEditorRegistration(
+                    $"{EditorIdPrefix}.{target}",
+                    $"Sample {target} Editor",
+                    target,
+                    editorContext => CreateSampleEditor(context, editorContext)));
+            }
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            context.Logger.LogWarning($"Editor demo registration is not permitted for this plugin manifest: {exception.Message}");
+        }
+        catch (InvalidOperationException exception)
+        {
+            context.Logger.LogWarning($"Editor demo registration is unavailable: {exception.Message}");
+        }
+    }
+
+    private static FrameworkElement CreateSampleEditor(IPluginContext context, PluginEditorContext editorContext)
+    {
+        TextBox editor = new()
+        {
+            Text = editorContext.Content,
+            AcceptsReturn = true,
+            TextWrapping = TextWrapping.Wrap,
+            MinHeight = 220,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+        };
+        TextBlock metadata = new()
+        {
+            Text = $"Target: {editorContext.Target} • Document: {editorContext.DocumentId} • Metadata keys: {editorContext.Metadata.Count}",
+            Foreground = Brushes.LightGray,
+            TextWrapping = TextWrapping.Wrap
+        };
+        Button validateButton = new() { Content = "Validate", Margin = new Thickness(0, 10, 6, 0) };
+        Button saveButton = new() { Content = "Save", Margin = new Thickness(0, 10, 6, 0) };
+        Button cancelButton = new() { Content = "Cancel", Margin = new Thickness(0, 10, 0, 0) };
+
+        validateButton.Click += async (_, _) =>
+        {
+            if (editorContext.ValidateAsync == null)
+            {
+                context.DialogService.ShowInfo("Arclyra Sample Plugin", "This host editor did not provide a validation callback.");
+                return;
+            }
+
+            await editorContext.ValidateAsync(editor.Text);
+            context.DialogService.ShowInfo("Arclyra Sample Plugin", "Host validation completed for the sample editor content.");
+        };
+        saveButton.Click += async (_, _) => await editorContext.SaveAsync(editor.Text);
+        cancelButton.Click += async (_, _) => await editorContext.CancelAsync();
+
+        return CreateFormCard(
+            $"Sample Plugin Editor: {editorContext.Title}",
+            "This editor demonstrates how plugins can replace supported host editing surfaces while delegating save, cancel, and validation back to Arclyra.",
+            metadata,
+            editor,
+            new WrapPanel { Children = { validateButton, saveButton, cancelButton } });
+    }
+
+    private static void RegisterAiGenerationPasteActions(IPluginContext context)
+    {
+        try
+        {
+            context.UiRegistry.RegisterAiGenerationPasteAction(new PluginAiGenerationPasteActionRegistration(
+                AiGenerationPasteActionId,
+                "Sample Inspect",
+                "Shows the selected provider and prompt sizes supplied to a plugin paste action.",
+                10,
+                pasteContext =>
+                {
+                    pasteContext.CancellationToken.ThrowIfCancellationRequested();
+                    string provider = pasteContext.SelectedProvider == null ? "none" : pasteContext.SelectedProvider.Name;
+                    context.DialogService.ShowInfo(
+                        "Sample AI Paste Action",
+                        $"Selected provider: {provider}\nStory guide characters: {pasteContext.BaseStoryInfo.Length}\nChapter command characters: {pasteContext.CurrentChapterCommand.Length}\nRendered prompt characters: {pasteContext.CurrentRenderedPrompt?.Length ?? 0}");
+                    return Task.CompletedTask;
+                }));
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            context.Logger.LogWarning($"AI generation paste action demo registration is not permitted for this plugin manifest: {exception.Message}");
+        }
+    }
+
+    private static void RegisterHostEventSubscriptions(IPluginContext context)
+    {
+        TrySubscribeStoryEvent(context, PluginEventNames.StoryCreated);
+        TrySubscribeStoryEvent(context, PluginEventNames.StorySelected);
+        TrySubscribeChapterEvent(context, PluginEventNames.ChapterCreated);
+        TrySubscribeChapterEvent(context, PluginEventNames.ChapterOpened);
+        TrySubscribeGeneratedDraftEvent(context, PluginEventNames.GeneratedDraftAdded);
+        TrySubscribePromptDetailEvent(context, PluginEventNames.PromptDetailAdded);
+        TrySubscribeAiProviderEvent(context, PluginEventNames.AiProviderAdded);
+        TrySubscribeTransferEvent(context, PluginEventNames.ExportCompleted);
+        TrySubscribeEditorEvent(context, PluginEventNames.EditorOpened);
+        TrySubscribePreferencesEvent(context);
+    }
+
+    private static void TrySubscribeStoryEvent(IPluginContext context, string eventName) => TrySubscribe(context, eventName, (PluginEventContext eventContext, PluginStoryEvent payload) => $"{eventContext.EventName}: {payload.StoryName}");
+    private static void TrySubscribeChapterEvent(IPluginContext context, string eventName) => TrySubscribe(context, eventName, (PluginEventContext eventContext, PluginChapterEvent payload) => $"{eventContext.EventName}: {payload.StoryName} chapter {payload.ChapterNumber}");
+    private static void TrySubscribeGeneratedDraftEvent(IPluginContext context, string eventName) => TrySubscribe(context, eventName, (PluginEventContext eventContext, PluginGeneratedDraftEvent payload) => $"{eventContext.EventName}: draft {payload.DraftIndex} length {payload.ContentLength}");
+    private static void TrySubscribePromptDetailEvent(IPluginContext context, string eventName) => TrySubscribe(context, eventName, (PluginEventContext eventContext, PluginPromptDetailEvent payload) => $"{eventContext.EventName}: {payload.EntryType} {payload.PromptDetailId}");
+    private static void TrySubscribeAiProviderEvent(IPluginContext context, string eventName) => TrySubscribe(context, eventName, (PluginEventContext eventContext, PluginAiProviderEvent payload) => $"{eventContext.EventName}: {payload.Name}");
+    private static void TrySubscribeTransferEvent(IPluginContext context, string eventName) => TrySubscribe(context, eventName, (PluginEventContext eventContext, PluginTransferEvent payload) => $"{eventContext.EventName}: {payload.Format} {payload.Path}");
+    private static void TrySubscribeEditorEvent(IPluginContext context, string eventName) => TrySubscribe(context, eventName, (PluginEventContext eventContext, PluginEditorEvent payload) => $"{eventContext.EventName}: {payload.Target} {payload.DocumentId}");
+
+    private static void TrySubscribePreferencesEvent(IPluginContext context) => TrySubscribe(context, PluginEventNames.SettingsChanged, (PluginEventContext eventContext, PluginUserPreferencesChangedEvent payload) => $"{eventContext.EventName}: theme {payload.Preferences.AppearanceTheme}");
+
+    private static void TrySubscribe<TEvent>(IPluginContext context, string eventName, Func<PluginEventContext, TEvent, string> describe) where TEvent : PluginEventDto
+    {
+        try
+        {
+            context.EventBus.Subscribe<TEvent>(eventName, (eventContext, payload) =>
+                context.Logger.LogInformation($"Sample plugin received {describe(eventContext, payload)}."));
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            context.Logger.LogWarning($"Event subscription for {eventName} is not permitted: {exception.Message}");
+        }
+    }
+
+    private static void AddPreferencesAndLicenseSummary(IPluginContext context, ICollection<string> lines)
+    {
+        try
+        {
+            PluginUserPreferencesDto preferences = context.PreferencesService.GetPreferences();
+            lines.Add($"• Preferences: theme {preferences.AppearanceTheme}; large text {preferences.UseLargeText}; screenshots prevented {preferences.PreventScreenshots}; workflow windows {preferences.WorkflowWindowPreference}.");
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            lines.Add($"• Preferences: not permitted ({exception.Message}).");
+        }
+
+        lines.Add($"• License: premium/unlimited active = {context.LicenseService.IsPremiumActive}.");
+    }
+
+    private static void AddPluginMetadataSummary(IPluginContext context, ICollection<string> lines)
+    {
+        IReadOnlyDictionary<string, string> metadata = context.StoryDataService.GetPluginMetadata();
+        context.StoryDataService.SetPluginMetadata("lastDiagnosticsUtc", DateTimeOffset.UtcNow.ToString("O"));
+        lines.Add($"• Plugin metadata: {metadata.Count} existing key(s); updated sample lastDiagnosticsUtc metadata.");
+    }
+
     private static void RegisterMenuItems(IPluginContext context)
     {
         context.UiRegistry.RegisterMenuItem(new PluginMenuItemRegistration(
@@ -796,6 +1120,12 @@ public sealed class SamplePlugin : IArclyraPlugin
             "Write Demo Diagnostics",
             WriteDiagnosticsCommandId,
             SortOrder: 20));
+
+        context.UiRegistry.RegisterMenuItem(new PluginMenuItemRegistration(
+            "Tools/Plugins/Sample Plugin",
+            "Inspect AI Generation Window",
+            InspectAiGenerationWindowCommandId,
+            SortOrder: 50));
 
         context.UiRegistry.RegisterMenuItem(new PluginMenuItemRegistration(
             "Tools/Plugins/Sample Plugin",
@@ -870,7 +1200,7 @@ public sealed class SamplePlugin : IArclyraPlugin
         try
         {
             _ = context.SmartBuilderService;
-            lines.Add("• Smart Builder: toolbar, sidebar, below-prompt content, row action, validator, and prompt transform hooks registered.");
+            lines.Add("• Smart Builder: toolbar, chapter action, sidebar, below-prompt content, row action, validator, and prompt transform hooks registered.");
         }
         catch (UnauthorizedAccessException exception)
         {
@@ -888,7 +1218,8 @@ public sealed class SamplePlugin : IArclyraPlugin
         {
             IReadOnlyList<PluginAiConfiguration> configurations = context.AiProviderService.GetConfigurations();
             int pluginOwnedCount = configurations.Count(configuration => configuration.IsPluginOwned);
-            lines.Add($"• AI providers: {configurations.Count}; plugin-owned providers: {pluginOwnedCount}.");
+            bool hasSampleGenerator = configurations.Any(configuration => string.Equals(configuration.PluginConfigurationId, DemoAiGeneratorConfigurationId, StringComparison.OrdinalIgnoreCase));
+            lines.Add($"• AI providers: {configurations.Count}; plugin-owned providers: {pluginOwnedCount}; sample direct generator registered: {hasSampleGenerator}.");
         }
         catch (UnauthorizedAccessException exception)
         {

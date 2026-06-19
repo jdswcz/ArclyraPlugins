@@ -1,7 +1,7 @@
 namespace Arclyra.PluginSdk;
 
 /// <summary>
-/// Context passed to a plugin AI generator for one Smart Builder chapter-generation request.
+/// Context passed to a plugin AI generator for one guided chapter setup chapter-generation request.
 /// </summary>
 public sealed record PluginAiGenerationRequest(
     string StoryGuide,

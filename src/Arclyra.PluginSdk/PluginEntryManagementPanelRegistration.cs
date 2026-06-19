@@ -3,7 +3,7 @@ using System.Windows;
 namespace Arclyra.PluginSdk;
 
 /// <summary>
-/// Describes a plugin panel hosted in the prompt detail entry-management UI.
+/// Describes a plugin panel hosted in the prompt setup UI.
 /// </summary>
 public sealed record PluginEntryManagementPanelRegistration(
     string PanelId,
@@ -13,7 +13,7 @@ public sealed record PluginEntryManagementPanelRegistration(
     int SortOrder = 0);
 
 /// <summary>
-/// Context supplied to plugin panels in the prompt detail entry-management UI.
+/// Context supplied to plugin panels in the prompt setup UI.
 /// </summary>
 public sealed record PluginEntryManagementPanelContext(
     PluginStoryDto? SelectedStory,

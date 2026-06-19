@@ -46,6 +46,11 @@ public static class PluginCapabilities
     public const string AiGeneration = "ai.generation";
 
     /// <summary>
+    /// Allows a plugin to access the live Chromium browser in the AI generation window.
+    /// </summary>
+    public const string AiGenerationBrowserAccess = "aiGeneration.browserAccess";
+
+    /// <summary>
     /// Allows a plugin to subscribe to host events.
     /// </summary>
     public const string EventsSubscribe = "events.subscribe";
@@ -66,7 +71,7 @@ public static class PluginCapabilities
     public const string EventsGeneratedDraft = "events.generatedDraft";
 
     /// <summary>
-    /// Allows a plugin to subscribe to Smart Builder prompt detail events.
+    /// Allows a plugin to subscribe to guided chapter setup prompt detail events.
     /// </summary>
     public const string EventsPromptDetail = "events.promptDetail";
 
@@ -91,7 +96,7 @@ public static class PluginCapabilities
     public const string UiWorkspacePanel = "ui.workspacePanel";
 
     /// <summary>
-    /// Reserved for plugins that contribute UI directly to Smart Builder workflows.
+    /// Reserved for plugins that contribute UI directly to guided chapter setup workflows.
     /// </summary>
     public const string UiSmartBuilder = "ui.smartBuilder";
 
@@ -121,9 +126,14 @@ public static class PluginCapabilities
     public const string UiNewStoryWizard = "ui.newStoryWizard";
 
     /// <summary>
-    /// Allows a plugin to contribute UI to prompt detail entry-management regions.
+    /// Allows a plugin to contribute UI to prompt setup regions.
     /// </summary>
     public const string UiEntryManagement = "ui.entryManagement";
+
+    /// <summary>
+    /// Allows a plugin to contribute user-invoked actions next to AI generation paste controls.
+    /// </summary>
+    public const string UiAiGenerationPasteActions = "ui.aiGenerationPasteActions";
 
     /// <summary>
     /// Reserved for future host-mediated network access. Production manifests cannot request this capability until the SDK exposes the corresponding service.
@@ -153,6 +163,7 @@ public static class PluginCapabilities
         AiProvidersRead,
         AiProvidersWrite,
         AiGeneration,
+        AiGenerationBrowserAccess,
         EventsSubscribe,
         EventsStory,
         EventsChapter,
@@ -169,6 +180,7 @@ public static class PluginCapabilities
         UiDialogs,
         UiNewStoryWizard,
         UiEntryManagement,
+        UiAiGenerationPasteActions,
         FileSystemPluginDirectory,
         NativeDependencies
     };
