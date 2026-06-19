@@ -1,4 +1,4 @@
-# Prompt context API examples
+# Prompt context API
 
 The prompt context API lets plugins inspect and extend the guided chapter setup prompt details that Arclyra uses when building chapter-generation prompts. The API is exposed through `IPluginContext.PromptContextService`.
 
@@ -236,3 +236,18 @@ PluginRenderedPromptDetailsDto rendered = context.PromptContextService.RenderCha
 `RenderChapterPrompt` returns the rendered prompt text, row snapshots, counts by entry type, placeholder metadata, and chapter-plot rows. The optional chapter-content override is for preview/composition scenarios and does not mutate the chapter.
 
 Prompt detail changes can publish prompt-detail notifications; see [Events API](events.md) for event names and DTOs.
+
+
+## Method and capability reference
+
+| Method family | Methods | Capability | Notes |
+| --- | --- | --- | --- |
+| Template and render reads | `GetChapterPromptTemplates`, `GetChapterPromptTemplate`, `RenderChapterPrompt` | `prompt.read` | Returns snapshots and rendered prompt rows; render overrides are preview-only and do not mutate chapters. |
+| Prompt detail reads | `GetPromptDetails`, `GetPersistedPromptDetails`, `GetRuntimePromptDetails`, `GetPromptDetailScope` | `prompt.read` | `GetPromptDetails` includes both persisted and runtime plugin details for compatibility. |
+| Runtime prompt details | `AddOrUpdateRuntimePromptDetail`, `RemoveRuntimePromptDetail` | `prompt.write` | Runtime details are plugin-owned contributions included in rendered prompts but not saved to the story data file. |
+| Persisted prompt details | `CreatePromptDetail`, `UpdatePromptDetail`, `DeletePromptDetail`, `ReorderPromptDetails` | `prompt.write` | Mutates host-owned guided chapter setup selections and can publish prompt-detail events. |
+| Narrow persisted updates | `UpdatePersistedPromptDetailText`, `UpdatePromptDetailScope`, `UpdatePersistedPromptDetailScope`, `SetPersistedPromptDetailCustomization` | `prompt.write` | Prefer these when a plugin UI is changing only text, scope, or one chapter customization. |
+| Chapter customizations | `SetPromptDetailChapterCustomization`, `RemovePromptDetailChapterCustomization`, `ReplacePromptDetailChapterCustomizations`, `SetPromptDetailEnabledForChapter` | `prompt.write` | Applies chapter-specific prompt text or per-chapter inclusion/exclusion to persisted details. |
+| Prompt source entries | `GetPromptSourceEntries`, `CreatePromptSourceEntry`, `UpdatePromptSourceEntry`, `DeletePromptSourceEntry` | `story.read` / `story.write` | Normalized API for writing guidance, world details (`StoryInformation`), characters, items, and custom entries. |
+
+`PluginPromptDetailMutationResult` and `PluginPromptSourceEntryMutationResult` return `Success`, the updated DTO when available, and an optional host message. Use those results instead of assuming every requested mutation was accepted.
