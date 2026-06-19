@@ -87,5 +87,5 @@ Manifest capabilities for the sample above:
 For documentation-only changes, build the public SDK to catch signature drift that would make examples stale:
 
 ```bash
-dotnet build Arclyra.PluginSdk/Arclyra.PluginSdk.csproj
+dotnet build src/Arclyra.PluginSdk/Arclyra.PluginSdk.csproj
 ```
