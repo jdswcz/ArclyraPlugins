@@ -1,6 +1,6 @@
 # Capabilities
 
-Capabilities are declared in `plugin.json` and gate SDK services at runtime. They help users and the host understand intended access, but they are not an operating-system sandbox. Request the smallest set that supports the plugin feature.
+Capabilities are declared in `plugin.json` and gate SDK services at runtime. They help users and the host understand intended access, but they are not an operating-system sandbox. Request the smallest set that supports the plugin feature and use `capabilityExplanations` to tell users why each requested capability is needed.
 
 ## Stable capabilities
 
@@ -51,6 +51,13 @@ Capabilities are declared in `plugin.json` and gate SDK services at runtime. The
     "ui.smartBuilder",
     "events.subscribe",
     "events.promptDetail"
-  ]
+  ],
+  "capabilityExplanations": {
+    "story.read": "Reads story metadata selected by the user for Smart Builder context.",
+    "prompt.read": "Reads generated prompt rows so the plugin can summarize them.",
+    "ui.smartBuilder": "Adds an optional helper panel inside Smart Builder.",
+    "events.subscribe": "Listens for host events while Arclyra is running.",
+    "events.promptDetail": "Refreshes the helper panel when prompt details change."
+  }
 }
 ```

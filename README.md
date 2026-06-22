@@ -96,7 +96,15 @@ Minimal manifest:
   "description": "Adds example word-count utilities to Arclyra.",
   "author": "Example Studio",
   "website": "https://example.com/arclyra-wordtools",
-  "capabilities": []
+  "capabilities": [
+    "ui.workspacePanel"
+  ],
+  "capabilityExplanations": {
+    "ui.workspacePanel": "Adds an optional word-count panel inside the Arclyra workspace."
+  },
+  "assemblyReferenceExplanations": {
+    "System.Net.Http": "Used only when the user runs the optional online lookup command."
+  }
 }
 ```
 
@@ -184,6 +192,8 @@ See [Packaging](packaging.md) for complete packaging, validation, and distributi
 | `website` | Optional | Support, documentation, or project URL. |
 | `license` | Optional | License metadata displayed during review/distribution. |
 | `capabilities` | Recommended | Array of stable capability names requested by the plugin. Request only what you use. |
+| `capabilityExplanations` | Optional | Object whose keys are declared capability names and whose values explain why the plugin requests each capability. Matching is case-sensitive and shown in capability review lists. |
+| `assemblyReferenceExplanations` | Optional | Object whose keys are referenced assembly names and whose values explain why the plugin references that library. Matching is case-insensitive and shown in the enable-review library list when static analysis finds the assembly. |
 
 Legacy aliases may be accepted for older packages (`assembly`, `entryPoint`, and `minimumArclyraVersion`), but new plugins should use `entryAssembly`, `entryType`, and `minHostVersion`.
 
@@ -192,7 +202,7 @@ Legacy aliases may be accepted for older packages (`assembly`, `entryPoint`, and
 > [!WARNING]
 > Arclyra plugins are trusted code. They are .NET DLLs loaded in-process by Arclyra and are not sandboxed, isolated by permissions, or run in a separate security boundary. A plugin can execute arbitrary code with the same Windows user privileges as Arclyra, including reading and writing user-accessible files, starting processes, loading native code, using the network, and interacting with Arclyra process memory.
 
-Capabilities are a host-facing declaration and a service gate for Arclyra SDK APIs. They help users and the host understand intended access, but they are not an operating-system sandbox. Follow least privilege, explain why each capability is needed, and avoid surprising background behavior.
+Capabilities are a host-facing declaration and a service gate for Arclyra SDK APIs. They help users and the host understand intended access, but they are not an operating-system sandbox. Follow least privilege, explain why each capability is needed with `capabilityExplanations`, and avoid surprising background behavior.
 
 The stable capability list, reserved capabilities, and guidance for least-privilege manifests live in [Capabilities](capabilities.md).
 
