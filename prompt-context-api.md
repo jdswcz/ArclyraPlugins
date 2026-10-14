@@ -1,5 +1,7 @@
 # Prompt context API
 
+For current source-entry alternatives and chapter assignments, use the [Reusable prompt-entry versions API](prompt-entry-versions.md). Per-chapter customization methods shown in sections 5 and 8 below are obsolete compatibility adapters; new code should use reusable versions instead.
+
 The prompt context API lets plugins inspect and extend the guided chapter setup prompt details that Arclyra uses when building chapter-generation prompts. The API is exposed through `IPluginContext.PromptContextService`.
 
 ## Required manifest capabilities

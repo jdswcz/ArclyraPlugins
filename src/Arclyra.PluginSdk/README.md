@@ -1,48 +1,5 @@
-# Arclyra.PluginSdk
+# Arclyra Plugin SDK
 
-`Arclyra.PluginSdk` is the public contract package for Arclyra Writing Studio plugins. Plugins implement `IArclyraPlugin`, declare capabilities in `plugin.json`, and use host-provided services from `IPluginContext`.
+See the [Plugin Developer Guide](../../README.md) for setup, capabilities, API reference and packaging.
 
-## Documentation
-
-The detailed plugin-authoring docs live in [`GitHub repository`](https://github.com/jdswcz/ArclyraPlugins):
-
-- [Overview and quick start](../docs/plugins/README.md)
-- [Terminology](../docs/plugins/terminology.md)
-- [Capabilities](../docs/plugins/capabilities.md)
-- [Story data API](../docs/plugins/story-data-api.md)
-- [Prompt context API](../docs/plugins/prompt-context-api.md)
-- [Smart Builder API](../docs/plugins/smart-builder-api.md)
-- [AI generation API](../docs/plugins/ai-generation-api.md)
-- [UI extension API](../docs/plugins/ui-extension-api.md)
-- [Lifecycle events](../docs/plugins/lifecycle-events.md)
-- [Packaging](../docs/plugins/packaging.md)
-- [Plugin signing tool](../docs/plugins/signtool.md)
-
-## Minimal plugin
-
-```csharp
-using Arclyra.PluginSdk;
-
-namespace ExamplePlugin;
-
-public sealed class Plugin : IArclyraPlugin
-{
-    public string Id => "com.example.arclyra.hello";
-    public string Name => "Hello Arclyra";
-    public Task InitializeAsync(IPluginContext context, CancellationToken cancellationToken = default)
-    {
-        context.Logger.LogInformation("Hello from {PluginName}.", Name);
-        return Task.CompletedTask;
-    }
-
-    public Task ShutdownAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
-}
-```
-
-## Validate SDK examples
-
-After changing SDK contracts or plugin docs, build the SDK project:
-
-```bash
-dotnet build Arclyra.PluginSdk/Arclyra.PluginSdk.csproj
-```
+**Source snapshot:** this directory contains SDK 1.0.2. The maintained guide now describes the SDK 1.22.0 / host 62 source baseline from `202610_Perchance`. This documentation update does not change this project, publish a NuGet package, or rebuild sample binaries. See [compatibility and migration](../../sdk-compatibility.md) before using newer APIs.

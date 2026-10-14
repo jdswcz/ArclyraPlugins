@@ -1,5 +1,9 @@
 # Arclyra Plugin Developer Guide
 
+This reference documents **SDK 1.22.0 and host behavior through version 62**, checked against Arclyra Writing Studio branch `202610_Perchance` at commit `60fc50e81f6318093de9c1192bf43ec85db6c978` (October 15, 2026). See [compatibility and migration](sdk-compatibility.md) before using a newer API. This is a source compatibility baseline, not a claim that the corresponding NuGet package or host release is already published.
+
+The `src/Arclyra.PluginSdk` project and packaged sample binaries in this repository are an **older SDK 1.0.2 snapshot**; they have not been republished by this documentation update. They do not contain the newer APIs described below. Build against a matching published SDK or the current SDK source supplied with the host you target. The basic samples remain introductory examples.
+
 Arclyra plugins extend Arclyra Writing Studio with optional commands, menu items, settings pages, workspace panels, story UI integrations, Smart Builder tools, AI-provider configuration helpers, and host-mediated data workflows. Plugins are distributed as `.arcplugin` packages, installed into the user's writable app-data area, discovered at runtime, and initialized through `Arclyra.PluginSdk`.
 
 This repository is the maintained plugin-authoring reference. The SDK package README is intentionally short and links here for the full documentation. For working examples, build and inspect the sample plugins under `SamplePlugins/`.
@@ -26,7 +30,7 @@ This repository is the maintained plugin-authoring reference. The SDK package RE
 8. **Install in Arclyra.** Open **Plugins**, choose **Install Plugin**, select the `.arcplugin`, and let Arclyra validate, install, and reload plugins.
 9. **Update by installing a newer package.** Keep the same plugin `id`; use an increasing `version` value.
 
-Minimal project file for a WPF-capable plugin:
+Minimal project file for a WPF-capable plugin targeting this reference baseline (requires the matching package to be available in your configured feed):
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -39,7 +43,7 @@ Minimal project file for a WPF-capable plugin:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arclyra.PluginSdk" Version="1.0.0" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Arclyra.PluginSdk" Version="1.22.0" PrivateAssets="all" ExcludeAssets="runtime" />
   </ItemGroup>
 </Project>
 ```
@@ -124,6 +128,13 @@ Read these pages for the API details that were split out of this root guide:
 - [Prompt context API](prompt-context-api.md)
 - [Smart Builder API](smart-builder-api.md)
 - [AI generation API](ai-generation-api.md)
+- [Persistent story conversations](conversations.md)
+- [Chapter editor actions](editor-actions.md)
+- [Reusable prompt-entry versions](prompt-entry-versions.md)
+- [Browser workflows and Perchance reference](perchance-integration.md)
+- [Ordinary plugins and Trusted Components](trusted-components.md)
+- [SDK compatibility and migration](sdk-compatibility.md)
+- [First-party OpenAI-compatible API plugin](openai-compatible.md)
 - [UI extension API](ui-extension-api.md)
 - [Host services API](host-services-api.md)
 - [Events API](events.md)
@@ -187,6 +198,7 @@ See [Packaging](packaging.md) for complete packaging, validation, and distributi
 | `entryAssembly` | Yes | Relative path from the installed plugin folder to the plugin DLL. Absolute paths and paths escaping the plugin folder are rejected. |
 | `entryType` | Yes | Fully qualified .NET type name implementing `Arclyra.PluginSdk.IArclyraPlugin`. |
 | `minHostVersion` | Recommended | Minimum Arclyra host version, parseable by `System.Version`. |
+| `trustedComponent` | First-party only | Declares the expected trusted profile, never authority. Any declaration requires a dedicated host-pinned signature and allowlisted identity; ordinary plugins omit this field. See [Trusted Components](trusted-components.md). |
 | `description` | Optional | Short user-facing description. |
 | `author` | Optional | Plugin author or organization. |
 | `website` | Optional | Support, documentation, or project URL. |
@@ -213,6 +225,11 @@ Arclyra packages may include root-level `plugin.package.json` signature metadata
 If you wish to sign your plugins, contact Arclyra at **developers@arclyra.app**. We will provide the current signing requirements and developer onboarding details. Do not invent your own signature metadata format for public distribution.
 
 For signing-tool usage, see [Plugin signing tool](signtool.md).
+
+First-party Trusted Components use a separate host-verified identity/signing profile;
+ordinary developer signatures cannot grant it. The additive first-party UI contract grants no authority by itself;
+ordinary contexts return null. See [Trusted Components](trusted-components.md) for its
+identity and authority boundary.
 
 ## Native dependencies and Store/MSIX considerations
 
@@ -250,7 +267,7 @@ Managed dependencies can usually live beside the plugin DLL. Native DLLs require
 
 ## Validation command
 
-For documentation-only changes, build the public SDK to catch signature drift that would make examples stale:
+On Windows, build the local historical SDK and basic samples as a compatibility check. This does not validate newer examples against SDK 1.22; those require the matching SDK/host source:
 
 ```bash
 dotnet build src/Arclyra.PluginSdk/Arclyra.PluginSdk.csproj

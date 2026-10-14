@@ -9,7 +9,7 @@ Capabilities are declared in `plugin.json` and gate SDK services at runtime. The
 | Story data | `story.read` | Reads story data. | Read story data snapshots. |
 | Story data | `story.write` | Updates story data. | Add or update story data through explicit host-owned mutation APIs. |
 | Prompt context | `prompt.read` | Reads prompt context. | Read prompt templates and rendered prompt context. |
-| Prompt context | `prompt.write` | Updates prompt templates. | Update prompt templates or prompt context through explicit host APIs. |
+| Prompt context | `prompt.write` | Updates prompt context. | Update prompt templates/context or active prompt-detail editor fields through explicit host-mediated APIs. |
 | Settings | `settings.read` | Reads settings. | Read host user preference snapshots. |
 | AI providers | `aiProviders.read` | Reads AI providers. | Read AI provider configurations. |
 | AI providers | `aiProviders.write` | Adds AI providers. | Add, update, or remove plugin-owned AI provider configurations. |
@@ -26,12 +26,14 @@ Capabilities are declared in `plugin.json` and gate SDK services at runtime. The
 | UI | `ui.workspacePanel` | Contributes workspace UI. | Contribute dockable or hosted workspace panels. |
 | UI | `ui.smartBuilder` | Contributes Smart Builder UI. | Contribute UI directly to guided chapter setup workflows. |
 | UI | `ui.editors` | Contributes editor UI. | Replace supported host editing surfaces with plugin-provided editor controls. |
+| UI | `ui.editorActions` | Contributes chapter editor actions. | Add host-mediated actions to the built-in chapter editor without replacing it. |
 | UI | `ui.storyOverview` | Contributes story overview UI. | Contribute UI to story overview regions. |
 | UI | `ui.storyListActions` | Contributes story list actions. | Contribute action buttons to rows in the main story list. |
 | UI | `ui.dialogs` | Shows dialogs. | Show simple host-owned dialogs for user-initiated UI prompts. |
 | UI | `ui.newStoryWizard` | Contributes new-story wizard steps. | Contribute optional steps to the new-story wizard. |
-| UI | `ui.entryManagement` | Contributes entry-management UI. | Contribute UI to prompt setup regions. |
+| UI | `ui.entryManagement` | Contributes entry-management UI. | Contribute prompt setup panels or user-invoked prompt-detail actions. |
 | UI | `ui.aiGenerationPasteActions` | Contributes AI generation paste actions. | Contribute user-invoked actions next to AI generation paste controls. |
+| UI | `ui.aiGenerationToolbar` | Replaces an owned provider's entire top toolbar. | Register host-rendered replacement actions; also requires `prompt.read`. Host owns scope and restoration. |
 | File/native | `fileSystem.pluginDirectory` | Reads plugin files. | Access the path to the plugin installation directory. |
 | File/native | `nativeDependencies` | Loads native dependencies. | Load native/unmanaged dependencies from the plugin installation directory. |
 

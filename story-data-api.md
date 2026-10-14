@@ -20,6 +20,10 @@ IReadOnlyList<PluginCustomEntryDto> customEntries = context.StoryDataService.Get
 
 DTOs are snapshots, not live host objects. Re-read after mutating if you need current data.
 
+SDK 1.7 / host 43 adds `PluginChapterDto.CurrentDraftContent`: the saved working manuscript revision, then the displayed revision, then the latest legacy generated draft if no structured revision exists. An intentionally empty revision remains empty. `Content` is the outline, and `GeneratedContent` is the legacy draft collection; neither identifies the selected working revision. Re-read `GetStory` on each generation to include saved author edits. Unsaved editor text is not included.
+
+Host 44 makes a successfully saved revision the current working revision, including edits to an older version in Manage generated content. Viewing revisions does not change Current; Use as current can explicitly select a different saved version. This fixes saved edits being omitted from the next chapter's context while another revision was still marked Current.
+
 ## Story and chapter mutations
 
 ```csharp

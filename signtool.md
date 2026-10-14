@@ -1,5 +1,13 @@
 # Arclyra.PluginSignTool
 
+The tool ZIP in this repository is a historical snapshot. Newer commands below require the matching current signing tool; this documentation refresh does not rebuild the ZIP.
+
+`verify-package --package Signed.arcplugin --developer-name "Arclyra"` verifies an
+ordinary package against the exact host developer trust root, detached root metadata
+and canonical payload. It rejects a different developer identity, unsigned/tampered
+packages and Trusted Component declarations. SDK packaging invokes it when
+`ArclyraPluginRequireSigning=true`; it does not replace trusted release verification.
+
 `Arclyra.PluginSignTool` creates developer signing keys and signs `.arcplugin` packages for Arclyra Writing Studio.
 
 > [!IMPORTANT]
@@ -129,6 +137,10 @@ Omit `--output` to overwrite the original package.
 | `--package` | Yes | Path to the `.arcplugin` package. |
 | `--signature` | Yes | Path to `plugin.package.json`. |
 | `--output` | No | Signed package output path. If omitted, the input package is overwritten. |
+
+## Separate first-party signing
+
+Arclyra AI uses a separate, reserved Trusted Component identity and dedicated release signature. The host's current signing tool includes release/operator commands that are not present in this repository's historical tool ZIP. They do not replace ordinary plugin developer signing. See [ordinary plugins and Trusted Components](trusted-components.md) for the identity and authority boundary.
 
 ## Troubleshooting
 

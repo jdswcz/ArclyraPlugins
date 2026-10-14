@@ -76,13 +76,19 @@ Use the DTO `EventName` or context `EventName` when one handler is intentionally
 | `PluginStoryEvent` | Story open/close/select/create events. | `StoryId`, `StoryName` |
 | `PluginChapterEvent` | Chapter lifecycle and outline events. | `StoryId`, `StoryName`, `ChapterId`, `ChapterNumber`, optional `SourceChapterId` for duplicates |
 | `PluginChapterContentEvent` | Chapter content save/change events. | `StoryId`, `StoryName`, `ChapterId`, `ChapterNumber`, `ContentLength` |
-| `PluginGeneratedDraftEvent` | Generated-draft add/edit/delete/export events. | `StoryId`, `StoryName`, `ChapterId`, `ChapterNumber`, `DraftIndex`, `ContentLength`, optional `ExportPath` |
+| `PluginGeneratedDraftEvent` | Generated-draft add/edit/delete/export events. | `StoryId`, `StoryName`, `ChapterId`, `ChapterNumber`, legacy `DraftIndex`, optional stable `DraftId`, `ContentLength`, optional `ExportPath` |
 | `PluginPromptDetailEvent` | Prompt detail add/edit/delete/enable/disable/reorder/scope events. | `StoryId`, `StoryName`, `PromptDetailId`, `EntryType`, `Content`, optional `Detail`, `Scope` |
 | `PluginAiProviderEvent` | AI provider add/change/remove events. | `ConfigurationId`, `Name`, optional plugin ownership ids |
 | `PluginUserPreferencesChangedEvent` | Host preference saves. | `Preferences` snapshot |
 | `PluginTransferEvent` | Import/export completion events. | `StoryId`, `StoryName`, `Format`, optional `Path` |
 | `PluginEditorEvent` | Editor open/save/cancel/validation-error events. | `StoryId`, `StoryName`, `Target`, `DocumentId`, optional chapter data, optional `ErrorMessage` |
 | `PluginAiGenerationWindowEvent` | AI generation window open/close/provider-change events. | `IsWindowOpen`, optional `SelectedProvider` |
+
+## Generated-draft identity compatibility
+
+`PluginGeneratedDraftEvent.DraftIndex` remains the legacy zero-based generated-content index and is intentionally unchanged for existing plugins. When the generated version is backed by the canonical chapter-draft model, Arclyra also supplies `DraftId` with the stable `ChapterDraft.ID`. New integrations should prefer `DraftId` for long-lived identity while continuing to tolerate it being null for legacy or transient cases.
+
+For delete notifications, Arclyra captures the stable draft id before removal so `DraftId` can still identify the deleted canonical draft.
 
 ## Event-driven refresh pattern
 
