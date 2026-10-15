@@ -104,6 +104,38 @@ public sealed record PluginPromptDetailMutationResult(
     PluginPromptDetailDto? PromptDetail,
     string? Message = null);
 
+/// <summary>
+/// A reusable prompt-entry version. The virtual Main version uses the stable id <c>main</c>.
+/// </summary>
+public sealed record PluginPromptEntryVersionDto(
+    string Id,
+    string Name,
+    string PromptText,
+    bool IsMain);
+
+/// <summary>
+/// Creates a named reusable alternative version for a prompt source entry.
+/// </summary>
+public sealed record PluginPromptEntryVersionCreateRequest(
+    string Name,
+    string PromptText);
+
+/// <summary>
+/// Updates a reusable alternative version. Null values leave the corresponding property unchanged.
+/// </summary>
+public sealed record PluginPromptEntryVersionUpdateRequest(
+    string? Name = null,
+    string? PromptText = null);
+
+/// <summary>
+/// Describes where a reusable version is selected by a persisted prompt detail.
+/// </summary>
+public sealed record PluginPromptEntryVersionUsageDto(
+    string StoryId,
+    string PromptDetailId,
+    string? ChapterId,
+    bool IsDefault);
+
 public sealed record PluginPromptSourceEntryDto(
     string Id,
     PluginGenerationEntryType EntryType,

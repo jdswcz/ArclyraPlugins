@@ -14,12 +14,13 @@
 | `CommandRegistry` | None | Registers executable commands that menu items and UI contributions can invoke. |
 | `FirstPartyUiService` | Dedicated trusted signature + allowlisted identity only | Optional AI-only panel/settings registration and open/focus; null for ordinary plugins and older hosts. No unrestricted host access. |
 | `UiRegistry` | UI-specific capabilities | Registers menus, panels, settings pages, editors, story UI contributions, wizard steps, entry-management panels, and AI paste actions. |
-| `DialogService` | `ui.dialogs` | Shows host-owned informational, confirmation, text-input, and yes/no/cancel dialogs. |
+| `DialogService` | `ui.dialogs` | Shows host-owned informational, confirmation, text-input, full-text review and structured task-setup dialogs. |
 | `EventBus` | `events.subscribe` plus event-domain capabilities | Subscribes to stable host events. See [Events API](events.md). |
 | `AiProviderService` | `aiProviders.read`, `aiProviders.write`, or `ai.generation` | Reads and manages AI provider configurations, including plugin-owned direct generators. |
 | `StoryDataService` | `story.read` or `story.write` | Reads story snapshots and performs explicit host-owned story mutations. |
 | `PromptContextService` | `prompt.read`, `prompt.write`, `story.read`, or `story.write` depending on method | Reads rendered prompt context, manages prompt details, and manages prompt source entries. |
 | `SmartBuilderService` | `ui.smartBuilder`, `prompt.read`, or `prompt.write` depending on registration | Registers guided chapter setup UI actions, validators, and transforms. |
+| `ChapterEditorActionService` | `ui.editorActions` | Registers menus in the built-in chapter editor with immutable snapshots and guarded, single-use edits. See [chapter editor actions](editor-actions.md). |
 | `PreferencesService` | `settings.read` | Reads plugin-safe user preference snapshots. |
 | `LicenseService` | None | Legacy compatibility service. `IsPremiumActive` always returns `true`; new plugins must not use it for feature gating. |
 | `AiGenerationWindowService` | `aiGeneration.browserAccess` for automation methods | Inspects and automates the AI generation window through audited host operations. |
@@ -151,3 +152,12 @@ bool legacyCompatibilityValue = context.LicenseService.IsPremiumActive; // Alway
 `DialogService.ShowTextTaskSetup(request, cancellationToken)` uses `ui.dialogs` to collect a task choice, output language, additional instructions and complete request in one host-owned form. `PluginTextTaskSetupRequest` supplies `Title`, `Description`, `Choices` (`PluginTextTaskChoice` ID/name pairs), `DefaultTaskId`, `DefaultLanguage` and `ComposePrompt(taskId, language, notes)`. The result exposes `IsConfirmed`, `TaskId`, `Language` and `Prompt`. Cancel, close and older default implementations return an unconfirmed result; no request should be sent unless confirmed.
 
 For long-running detail-to-browser workflows, host 62 also supplies optional `MarkPreparationComplete` and `SelectBrowserProviderAsync` on the entry action context. These do not grant a general browser opener or save callback. See [detail task preparation](ui-extension-api.md#detail-task-preparation-sdk-122--host-62).
+
+## Chapter-editor browser handoff (SDK 1.23 / host 63)
+
+The chapter action context can supply optional `SelectBrowserProviderAsync` to select
+an owned manual provider in an already-open captured browser after request approval.
+This callback belongs to the invocation, not to the general context service. Check
+for null on older hosts, honor cancellation and snapshot freshness, and use the
+existing frame service only while the captured source remains current. It never
+opens a new browser or saves an editor proposal. See [editor actions](editor-actions.md).

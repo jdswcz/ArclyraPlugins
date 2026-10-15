@@ -6,10 +6,18 @@ namespace Arclyra.PluginSdk;
 /// </summary>
 public interface IPluginDialogService
 {
+    /// <summary>Shows a single task setup and complete request review. Older hosts fail closed.</summary>
+    PluginTextTaskSetupResult ShowTextTaskSetup(PluginTextTaskSetupRequest request, CancellationToken cancellationToken = default)
+        => new(false, request.DefaultTaskId, request.DefaultLanguage, string.Empty);
+
     /// <summary>
     /// Shows an informational dialog.
     /// </summary>
     void ShowInfo(string title, string message, string primaryText = "OK");
+
+    /// <summary>Shows a bounded multiline review; cancellation closes it. SDK 1.14 / host 52.</summary>
+    PluginDialogInputResult ShowTextReview(PluginTextReviewRequest request, CancellationToken cancellationToken = default)
+        => new(false, request.Text);
 
     /// <summary>
     /// Shows a two-button confirmation dialog and returns <see langword="true" /> when the user chooses the confirm action.

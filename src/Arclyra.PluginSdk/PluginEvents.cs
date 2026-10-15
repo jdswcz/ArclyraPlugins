@@ -96,7 +96,14 @@ public sealed record PluginGeneratedDraftEvent(
     int ChapterNumber,
     int DraftIndex,
     int ContentLength,
-    string? ExportPath = null) : PluginEventDto(EventName);
+    string? ExportPath = null) : PluginEventDto(EventName)
+{
+    /// <summary>
+    /// Stable canonical chapter-draft identifier when available.
+    /// DraftIndex remains available for backward compatibility.
+    /// </summary>
+    public string? DraftId { get; init; }
+}
 
 public sealed record PluginPromptDetailEvent(
     string EventName,

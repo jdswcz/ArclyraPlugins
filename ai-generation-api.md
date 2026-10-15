@@ -165,3 +165,11 @@ revalidates source and target, then appends through existing draft storage.
 `RequiresChapterTarget` disables actions without a saved chapter. The callback
 preserves previous/final revisions and unsaved preview, rejects duplicates and
 bounds result text to 262,144 characters. Older hosts provide no import callback.
+
+## Manual-browser automatic acquisition (SDK 1.23 / host 63)
+
+ManualBrowserWorkflow continues to forbid host-generated website inference. An owned
+toolbar may now prepare automatic observation and full-story loading through the
+optional [host-owned browser contracts](ui-extension-api.md#automatic-browser-observation-and-story-loading-sdk-123--host-63).
+Acquisition never implies acceptance, revision saving or canon changes. Other plugins
+keep their existing provider/generator contracts and toolbar defaults.

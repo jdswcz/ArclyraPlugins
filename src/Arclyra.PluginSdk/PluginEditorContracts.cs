@@ -10,6 +10,15 @@ public enum PluginEditorTarget
     StoryOverview
 }
 
+/// <summary>
+/// Stable metadata keys supplied by Arclyra for plugin editor contexts.
+/// </summary>
+public static class PluginEditorMetadataKeys
+{
+    public const string GeneratedDraftId = "draftId";
+    public const string GeneratedDraftLegacyIndex = "legacyDraftIndex";
+}
+
 public interface IPluginEditorRegistry
 {
     void RegisterEditor(PluginEditorRegistration registration);

@@ -1,8 +1,8 @@
 # Arclyra Plugin Developer Guide
 
-This reference documents **SDK 1.22.0 and host behavior through version 62**, checked against Arclyra Writing Studio commit `60fc50e81f6318093de9c1192bf43ec85db6c978` (October 15, 2026). See [compatibility and migration](sdk-compatibility.md) before using a newer API. This is a source compatibility baseline, not a claim that the corresponding NuGet package or host release is already published.
+This reference documents **SDK 1.23.0 and host behavior through version 63**, checked against Arclyra Writing Studio commit `d98236ec0f6990731d068763f83af60ac6d47e89` (October 15, 2026). See [compatibility and migration](sdk-compatibility.md) before using a newer API. This is a source compatibility baseline, not a claim that the corresponding NuGet package or host release is already published.
 
-The `src/Arclyra.PluginSdk` project and packaged sample binaries in this repository are an **older SDK 1.0.2 snapshot**; they have not been republished by this documentation update. They do not contain the newer APIs described below. Build against a matching published SDK or the current SDK source supplied with the host you target. The basic samples remain introductory examples.
+The `src/Arclyra.PluginSdk` project now contains the matching **SDK 1.23.0 source**, including contracts, DTOs, conversation helpers and MSBuild packaging/signing targets. You can build and pack it locally using the commands below. Existing introductory samples and packaged sample binaries still target SDK 1.0.2; this update does not change or rebuild them.
 
 Arclyra plugins extend Arclyra Writing Studio with optional commands, menu items, settings pages, workspace panels, story UI integrations, Smart Builder tools, AI-provider configuration helpers, and host-mediated data workflows. Plugins are distributed as `.arcplugin` packages, installed into the user's writable app-data area, discovered at runtime, and initialized through `Arclyra.PluginSdk`.
 
@@ -43,7 +43,7 @@ Minimal project file for a WPF-capable plugin targeting this reference baseline 
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arclyra.PluginSdk" Version="1.22.0" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Arclyra.PluginSdk" Version="1.23.0" PrivateAssets="all" ExcludeAssets="runtime" />
   </ItemGroup>
 </Project>
 ```
@@ -133,6 +133,7 @@ Read these pages for the API details that were split out of this root guide:
 - [Reusable prompt-entry versions](prompt-entry-versions.md)
 - [Ordinary plugins and Trusted Components](trusted-components.md)
 - [SDK compatibility and migration](sdk-compatibility.md)
+- [Automatic browser observation and story loading](ui-extension-api.md#automatic-browser-observation-and-story-loading-sdk-123--host-63)
 - [UI extension API](ui-extension-api.md)
 - [Host services API](host-services-api.md)
 - [Events API](events.md)
@@ -265,8 +266,17 @@ Managed dependencies can usually live beside the plugin DLL. Native DLLs require
 
 ## Validation command
 
-On Windows, build the local historical SDK and basic samples as a compatibility check. This does not validate newer examples against SDK 1.22; those require the matching SDK/host source:
+On Windows with .NET 8, build the SDK and create a local NuGet package:
 
 ```bash
-dotnet build src/Arclyra.PluginSdk/Arclyra.PluginSdk.csproj
+dotnet build src/Arclyra.PluginSdk/Arclyra.PluginSdk.csproj -c Release
+dotnet pack src/Arclyra.PluginSdk/Arclyra.PluginSdk.csproj -c Release -o artifacts/nuget
 ```
+
+If the matching version is not available from NuGet, add the local output as a package source:
+
+```powershell
+dotnet nuget add source "C:\path\to\ArclyraPlugins\artifacts\nuget" --name ArclyraLocal
+```
+
+Reference version `1.23.0` in your plugin project, set `minHostVersion` to `63.0` when using the new host-63 behavior, and keep `Arclyra.PluginSdk.dll` out of the final `.arcplugin`. Pack creates a local package; it does not publish it to NuGet.

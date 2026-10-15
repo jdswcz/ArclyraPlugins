@@ -20,7 +20,22 @@ public sealed record PluginAiConfiguration(
     string? PluginConfigurationId = null)
 {
     /// <summary>
+    /// Disables host automatic readback and generation automation for an
+    /// author-controlled browser workflow. Default false preserves existing providers.
+    /// </summary>
+    public bool ManualBrowserWorkflow { get; init; }
+
+    /// <summary>Optional request-local choices displayed beside this direct generator. SDK 1.8 / host 45.</summary>
+    public PluginAiGenerationMenu? GenerationMenu { get; init; }
+
+    /// <summary>
     /// Gets a value indicating whether the configuration is owned by a plugin.
     /// </summary>
     public bool IsPluginOwned => !string.IsNullOrWhiteSpace(PluginOwnerId);
 }
+
+/// <summary>A menu of one-time choices. These are runtime registrations, never provider settings.</summary>
+public sealed record PluginAiGenerationMenu(string DisplayName, IReadOnlyList<PluginAiGenerationOption> Options);
+
+/// <summary>An opaque choice understood only by its owning generator.</summary>
+public sealed record PluginAiGenerationOption(string Id, string DisplayName);

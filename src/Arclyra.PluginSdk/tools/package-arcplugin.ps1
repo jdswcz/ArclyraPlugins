@@ -24,7 +24,9 @@ param(
 
     [string]$DeveloperPublicKey = "",
 
-    [string]$DeveloperSignature = ""
+    [string]$DeveloperSignature = "",
+
+    [string]$RequireSigning = "false"
 )
 
 $ErrorActionPreference = "Stop"
@@ -47,6 +49,20 @@ $intermediatePath = Resolve-Path -LiteralPath $intermediateInputPath
 $stagingPath = Join-Path $intermediatePath "arcplugin-package"
 $pluginStagingPath = Join-Path $stagingPath "plugin"
 $packagePath = Join-Path $outputPath $PackageName
+$mustSign = $RequireSigning -eq "true"
+if ($mustSign -and [string]::IsNullOrWhiteSpace($SignToolPath)) {
+    if (Test-Path -LiteralPath $packagePath) { Remove-Item -LiteralPath $packagePath -Force }
+    throw "This plugin requires ordinary developer signing; SignToolPath cannot be empty."
+}
+if (-not [string]::IsNullOrWhiteSpace($SignToolPath)) {
+    if (Test-Path -LiteralPath $packagePath) { Remove-Item -LiteralPath $packagePath -Force }
+    if ([string]::IsNullOrWhiteSpace($DeveloperName)) { throw "DeveloperName is required for signing." }
+    foreach ($signingInput in @($SignToolPath, $DeveloperPrivateKey, $DeveloperPublicKey, $DeveloperSignature)) {
+        if ([string]::IsNullOrWhiteSpace($signingInput) -or -not (Test-Path -LiteralPath $signingInput -PathType Leaf)) {
+            throw "A required signing tool/key/signature file is missing: $signingInput"
+        }
+    }
+}
 if ([System.IO.Path]::IsPathRooted($ManifestFile)) {
     $pluginManifestPath = $ManifestFile
 }
@@ -88,13 +104,19 @@ if (Test-Path -LiteralPath $packagePath) {
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 [System.IO.Compression.ZipFile]::CreateFromDirectory($stagingPath, $packagePath)
 if (-not [string]::IsNullOrWhiteSpace($SignToolPath)) {
-    if ([string]::IsNullOrWhiteSpace($DeveloperName) -or [string]::IsNullOrWhiteSpace($DeveloperPrivateKey) -or [string]::IsNullOrWhiteSpace($DeveloperPublicKey) -or [string]::IsNullOrWhiteSpace($DeveloperSignature)) {
-        throw "Signing requires DeveloperName, DeveloperPrivateKey, DeveloperPublicKey, and DeveloperSignature."
+    try {
+        & $SignToolPath sign-package --package $packagePath --developer-name $DeveloperName --developer-private-key $DeveloperPrivateKey --developer-public-key $DeveloperPublicKey --developer-signature $DeveloperSignature
+        if ($LASTEXITCODE -ne 0) {
+            throw "Arclyra.PluginSignTool failed with exit code $LASTEXITCODE."
+        }
+        if ($mustSign) {
+            & $SignToolPath verify-package --package $packagePath --developer-name $DeveloperName
+            if ($LASTEXITCODE -ne 0) { throw "Ordinary package verification failed with exit code $LASTEXITCODE." }
+        }
     }
-
-    & $SignToolPath sign-package --package $packagePath --developer-name $DeveloperName --developer-private-key $DeveloperPrivateKey --developer-public-key $DeveloperPublicKey --developer-signature $DeveloperSignature
-    if ($LASTEXITCODE -ne 0) {
-        throw "Arclyra.PluginSignTool failed with exit code $LASTEXITCODE."
+    catch {
+        if (Test-Path -LiteralPath $packagePath) { Remove-Item -LiteralPath $packagePath -Force }
+        throw
     }
 }
 

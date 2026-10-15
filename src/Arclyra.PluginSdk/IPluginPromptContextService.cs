@@ -93,24 +93,28 @@ public interface IPluginPromptContextService
     /// Adds, updates, or removes chapter-specific prompt text for a persisted prompt detail.
     /// Requires the <see cref="PluginCapabilities.PromptWrite" /> capability.
     /// </summary>
+    [Obsolete("Legacy chapter-customization compatibility adapter. Prefer reusable prompt-entry version APIs when available.")]
     PluginPromptDetailMutationResult SetPersistedPromptDetailCustomization(string storyId, string promptDetailId, PluginPromptDetailCustomizationRequest request);
 
     /// <summary>
     /// Adds or updates chapter-specific prompt text for a persisted prompt detail.
     /// Requires the <see cref="PluginCapabilities.PromptWrite" /> capability.
     /// </summary>
+    [Obsolete("Legacy chapter-customization compatibility adapter. Prefer reusable prompt-entry version APIs when available.")]
     PluginPromptDetailMutationResult SetPromptDetailChapterCustomization(string storyId, string promptDetailId, string chapterId, string promptText);
 
     /// <summary>
     /// Removes chapter-specific prompt text from a persisted prompt detail.
     /// Requires the <see cref="PluginCapabilities.PromptWrite" /> capability.
     /// </summary>
+    [Obsolete("Legacy chapter-customization compatibility adapter. Prefer reusable prompt-entry version APIs when available.")]
     PluginPromptDetailMutationResult RemovePromptDetailChapterCustomization(string storyId, string promptDetailId, string chapterId);
 
     /// <summary>
     /// Replaces all chapter-specific prompt text for a persisted prompt detail.
     /// Requires the <see cref="PluginCapabilities.PromptWrite" /> capability.
     /// </summary>
+    [Obsolete("Legacy chapter-customization compatibility adapter. Prefer reusable prompt-entry version APIs when available.")]
     PluginPromptDetailMutationResult ReplacePromptDetailChapterCustomizations(string storyId, string promptDetailId, IReadOnlyDictionary<string, string> chapterPromptTexts);
 
     /// <summary>
@@ -132,13 +136,73 @@ public interface IPluginPromptContextService
     IReadOnlyList<PluginPromptDetailDto> ReorderPromptDetails(string storyId, PluginGenerationEntryType entryType, IReadOnlyList<string> orderedPromptDetailIds);
 
     /// <summary>
+    /// Lists the virtual Main version and all reusable alternative versions for a prompt source entry.
+    /// Requires the <see cref="PluginCapabilities.PromptRead" /> capability.
+    /// </summary>
+    IReadOnlyList<PluginPromptEntryVersionDto> GetPromptEntryVersions(string sourceEntryId) => throw new NotSupportedException("Reusable prompt-entry versions are not supported by this host.");
+
+    /// <summary>
+    /// Creates a reusable alternative version for a prompt source entry.
+    /// Requires the <see cref="PluginCapabilities.PromptWrite" /> capability.
+    /// </summary>
+    PluginPromptEntryVersionDto CreatePromptEntryVersion(string sourceEntryId, PluginPromptEntryVersionCreateRequest request) => throw new NotSupportedException("Reusable prompt-entry versions are not supported by this host.");
+
+    /// <summary>
+    /// Updates a reusable alternative version. The virtual Main version cannot be updated through this API.
+    /// Requires the <see cref="PluginCapabilities.PromptWrite" /> capability.
+    /// </summary>
+    PluginPromptEntryVersionDto UpdatePromptEntryVersion(string sourceEntryId, string versionId, PluginPromptEntryVersionUpdateRequest request) => throw new NotSupportedException("Reusable prompt-entry versions are not supported by this host.");
+
+    /// <summary>
+    /// Renames a reusable alternative version. The virtual Main version cannot be renamed.
+    /// Requires the <see cref="PluginCapabilities.PromptWrite" /> capability.
+    /// </summary>
+    PluginPromptEntryVersionDto RenamePromptEntryVersion(string sourceEntryId, string versionId, string name) => throw new NotSupportedException("Reusable prompt-entry versions are not supported by this host.");
+
+    /// <summary>
+    /// Deletes an unused reusable alternative version. Main and versions with persisted usages cannot be deleted.
+    /// Requires the <see cref="PluginCapabilities.PromptWrite" /> capability.
+    /// </summary>
+    bool DeletePromptEntryVersion(string sourceEntryId, string versionId) => throw new NotSupportedException("Reusable prompt-entry versions are not supported by this host.");
+
+    /// <summary>
+    /// Gets persisted default and chapter-specific usages of a reusable version.
+    /// Requires the <see cref="PluginCapabilities.PromptRead" /> capability.
+    /// </summary>
+    IReadOnlyList<PluginPromptEntryVersionUsageDto> GetPromptEntryVersionUsage(string sourceEntryId, string versionId) => throw new NotSupportedException("Reusable prompt-entry versions are not supported by this host.");
+
+    /// <summary>
+    /// Assigns a reusable version as the default for a persisted prompt detail. Passing the virtual Main version resets the default assignment.
+    /// Requires the <see cref="PluginCapabilities.PromptWrite" /> capability.
+    /// </summary>
+    void SetPromptEntryDefaultVersion(string promptDetailId, string versionId) => throw new NotSupportedException("Reusable prompt-entry version assignments are not supported by this host.");
+
+    /// <summary>
+    /// Resets a persisted prompt detail's default version to virtual Main.
+    /// Requires the <see cref="PluginCapabilities.PromptWrite" /> capability.
+    /// </summary>
+    void ResetPromptEntryDefaultVersion(string promptDetailId) => throw new NotSupportedException("Reusable prompt-entry version assignments are not supported by this host.");
+
+    /// <summary>
+    /// Assigns a reusable version to a chapter for a persisted prompt detail. Passing the virtual Main version removes the chapter override.
+    /// Requires the <see cref="PluginCapabilities.PromptWrite" /> capability.
+    /// </summary>
+    void SetPromptEntryChapterVersion(string promptDetailId, string chapterId, string versionId) => throw new NotSupportedException("Reusable prompt-entry version assignments are not supported by this host.");
+
+    /// <summary>
+    /// Resets a chapter-specific version assignment to virtual Main for a persisted prompt detail.
+    /// Requires the <see cref="PluginCapabilities.PromptWrite" /> capability.
+    /// </summary>
+    void ResetPromptEntryChapterVersion(string promptDetailId, string chapterId) => throw new NotSupportedException("Reusable prompt-entry version assignments are not supported by this host.");
+
+    /// <summary>
     /// Lists source entries for writing guidance, world details (`StoryInformation` API identifier), items, characters, and custom entries.
     /// Requires the <see cref="PluginCapabilities.StoryRead" /> capability.
     /// </summary>
     IReadOnlyList<PluginPromptSourceEntryDto> GetPromptSourceEntries(string? storyId = null, PluginGenerationEntryType? entryType = null, PluginSelectionScope? scope = null);
 
     /// <summary>
-    /// Creates a source entry. Persisted story/global entry limits are preserved.
+    /// Creates a source entry.
     /// Requires the <see cref="PluginCapabilities.StoryWrite" /> capability.
     /// </summary>
     PluginPromptSourceEntryMutationResult CreatePromptSourceEntry(PluginPromptSourceEntryCreateRequest request);

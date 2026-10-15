@@ -318,7 +318,8 @@ insertion, passing a `PluginBrowserFrameScriptRequest` with a read-only script.
 It arms one host-owned subscription in the existing visible browser. The script
 returns `{ "ok": true, "text": "complete cumulative prose", "generating": true }`;
 empty text leaves the current draft intact. The 262,144-character bound applies.
-The host uses its existing 1.5-second timer, allows one read at a time, pauses during
+The legacy preview uses a 1.5-second timer (the host-63 chapter observer uses
+250 ms), allows one read at a time, pauses during
 user reviews, and checks ownership, visible frame/document, workspace, prompt and
 chapter identity before and after each read. It rebases only its own transient
 preview updates; intervening author edits invalidate the chapter snapshot.
@@ -437,3 +438,49 @@ confirmation. The prompt callback is used only while this transient dialog is op
 Cancel/close/cancellation transmits nothing. Older hosts return an unconfirmed
 result by the default interface implementation. Plugins requiring these surfaces
 must declare host 62.
+
+## Automatic browser observation and story loading (SDK 1.23 / host 63)
+
+All additions are optional init properties; positional constructors and SDK assembly
+identity remain unchanged. No new privilege/capability or general writer is introduced.
+
+`PluginAiGenerationToolbarRegistration.PrepareObservationAsync` requests automatic
+observation preparation only for a valid saved chapter on the owner's active manual
+provider/page with browser access. The host supplies the existing scoped toolbar
+context, serializes invocation, and arms only a transient preview. Preparation may
+inspect output but must never initiate generation or save. Context/document changes
+invalidate it. It pauses while captured editor interactions own the browser. A new
+explicit insertion can establish a new baseline after a conflict/saved revision.
+
+`UseMoreMenu` groups secondary actions and provider selection without navigation;
+`PluginAiGenerationToolbarAction.IsSecondary` and optional `IsVisible` support
+contextual actions. The host evaluates visibility on its dispatcher and detaches
+all button/menu handlers on restoration. Default registrations preserve legacy placement.
+
+`PluginAiGenerationPasteActionContext.LoadChaptersAsync` is supplied only for a
+captured chapter and browser-access capability. `PluginBrowserStoryLoadRequest`
+provides an inspect script, exact compare/replacement factory and preview factory.
+The host owns revision policy, bounded complete-story preview, explicit confirmation,
+source/topology/document guards, acknowledgment and recorded boundaries. It saves
+no Arclyra data. Inspect returns `{ok,text,overview,generating}`; replacement acknowledges
+`story` plus `overview`. Loading does not use the legacy chapter-matching heuristic. The host-63 loader
+targets the owned provider's uniquely matched direct iframe `outputIframeEl`; its
+page and frame must satisfy the existing approved-frame policy.
+`ChapterGenerationUnavailableReason` restricts a loaded story to its last chapter.
+
+A preview request can supply `BuildObservationScript(lastRevision)` for incremental
+polling, `InitialBrowserStory` for exact loaded-boundary validation, and the host-reviewed
+`PreviewPrefix` for continuing saved final-chapter prose. Preview envelopes optionally
+include bounded integer `revision`, `words`, `target`, validated `phase` and boolean
+`safeguard`, plus `cleared` for a verified deliberate empty-tail correction. Unchanged envelopes return `waiting:true,text:""`; this never clears staging.
+The host runs one native read at a time on a 250 ms chapter timer, preserves separate
+incoming proposals on author conflicts, and saves no revisions. Browser observers must
+have finite leases and must not perform unattended generation. Observer timers may sample
+values; only a current host poll may request the standard website Stop action.
+
+`PluginChapterEditorActionContext.SelectBrowserProviderAsync` extends the existing
+source-bound entry-management selection to chapter actions. The host establishes the
+same browser invocation scope and revalidates document/revision/selection/workspace,
+owner, provider and window across awaits. It opens no new/global browser and grants
+neither generation nor persistence. Automatic task acquisition still passes through
+existing explicit proposal/diff/application callbacks.

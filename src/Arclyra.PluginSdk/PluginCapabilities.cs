@@ -5,6 +5,9 @@ namespace Arclyra.PluginSdk;
 /// </summary>
 public static class PluginCapabilities
 {
+    /// <summary>Replaces the AI generation toolbar for an owned browser provider.</summary>
+    public const string UiAiGenerationToolbar = "ui.aiGenerationToolbar";
+
     /// <summary>
     /// Allows a plugin to read story data snapshots.
     /// </summary>
@@ -21,7 +24,8 @@ public static class PluginCapabilities
     public const string PromptRead = "prompt.read";
 
     /// <summary>
-    /// Reserved for plugins that update prompt templates or prompt context through explicit host APIs.
+    /// Allows plugins to update prompt templates, prompt context, or an active prompt-detail editor
+    /// through explicit host-mediated APIs.
     /// </summary>
     public const string PromptWrite = "prompt.write";
 
@@ -106,6 +110,11 @@ public static class PluginCapabilities
     public const string UiEditors = "ui.editors";
 
     /// <summary>
+    /// Allows a plugin to contribute host-mediated actions to the built-in chapter editor.
+    /// </summary>
+    public const string UiEditorActions = "ui.editorActions";
+
+    /// <summary>
     /// Allows a plugin to contribute UI to story overview regions.
     /// </summary>
     public const string UiStoryOverview = "ui.storyOverview";
@@ -175,12 +184,14 @@ public static class PluginCapabilities
         UiWorkspacePanel,
         UiSmartBuilder,
         UiEditors,
+        UiEditorActions,
         UiStoryOverview,
         UiStoryListActions,
         UiDialogs,
         UiNewStoryWizard,
         UiEntryManagement,
         UiAiGenerationPasteActions,
+        UiAiGenerationToolbar,
         FileSystemPluginDirectory,
         NativeDependencies
     };

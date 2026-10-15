@@ -51,3 +51,10 @@ The host must revalidate document identity, revision, editor lifetime, plugin li
 ## Plugin behavior
 
 Generate and review proposed text without editing the document. Let the writer inspect and optionally edit the proposal before calling `ApplyAsync`. Support cancellation and discard, handle every non-applied status, and release owned windows and work during plugin shutdown.
+
+Host 63 / SDK 1.23 adds optional chapter-action `SelectBrowserProviderAsync` for an
+already-open captured owned manual browser. The guarded chapter invocation may use
+the existing frame service while its original snapshot remains current. Selection
+and subsequent reads revalidate editor/selection/document/revision/workspace and
+browser identity; no global window fallback, automatic acceptance or save is granted.
+This mirrors the existing entry-management browser handoff and preserves older constructors.

@@ -24,7 +24,15 @@ public sealed record PluginChapterDto(
     int Number,
     string Content,
     string ContentPreview,
-    IReadOnlyList<string> GeneratedContent);
+    IReadOnlyList<string> GeneratedContent)
+{
+    /// <summary>
+    /// The saved working manuscript revision, falling back to the displayed revision
+    /// or latest legacy draft. Null means no manuscript exists; empty means it was cleared.
+    /// Available in SDK 1.7 / host 43. Content remains the chapter outline.
+    /// </summary>
+    public string? CurrentDraftContent { get; init; }
+}
 
 /// <summary>
 /// A read-only snapshot of a character entry.

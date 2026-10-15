@@ -6,6 +6,14 @@ namespace Arclyra.PluginSdk;
 public interface IPluginUiRegistry : IPluginEditorRegistry
 {
     /// <summary>
+    /// Replaces the provider/paste toolbar for an owned browser configuration only.
+    /// Requires ui.aiGenerationToolbar and prompt.read. Older hosts reject this
+    /// optional extension; existing implementations remain binary-compatible.
+    /// </summary>
+    void RegisterAiGenerationToolbar(PluginAiGenerationToolbarRegistration registration) =>
+        throw new NotSupportedException("AI generation toolbar replacement requires Arclyra host 51 or newer.");
+
+    /// <summary>
     /// Registers a menu item contributed by a plugin.
     /// </summary>
     /// <param name="registration">The menu item registration details.</param>
@@ -55,6 +63,14 @@ public interface IPluginUiRegistry : IPluginEditorRegistry
     /// Requires the <see cref="PluginCapabilities.UiEntryManagement" /> capability.
     /// </summary>
     void RegisterEntryManagementPanel(PluginEntryManagementPanelRegistration registration);
+
+    /// <summary>
+    /// Registers a user-invoked action beside the Prompt setup Save button.
+    /// Requires both <see cref="PluginCapabilities.UiEntryManagement" /> and
+    /// <see cref="PluginCapabilities.PromptWrite" /> because the action can replace
+    /// the active prompt-detail description through a host-owned callback.
+    /// </summary>
+    void RegisterEntryManagementAction(PluginEntryManagementActionRegistration registration);
 
     /// <summary>
     /// Registers an action contributed next to the AI generation paste controls.

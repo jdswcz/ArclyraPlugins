@@ -10,6 +10,12 @@ public interface IPluginAiGenerationWindowService
     /// </summary>
     bool IsWindowOpen { get; }
 
+    /// <summary>Runs in a uniquely identified direct iframe of this plugin's selected manual provider.
+    /// Requires a current owned user toolbar action, or a guarded prompt-detail action on host 61.
+    /// Requires aiGeneration.browserAccess. Default implementation supports older hosts by failing closed. SDK 1.14 / host 52.</summary>
+    Task<PluginBrowserAutomationResult<string?>> RunApprovedFrameScriptAsync(PluginBrowserFrameScriptRequest request, CancellationToken cancellationToken = default)
+        => Task.FromResult(PluginBrowserAutomationResult<string?>.Failed("This host does not support scoped frame operations."));
+
     /// <summary>
     /// Gets a snapshot of the AI provider currently selected in the AI generation control, if available.
     /// </summary>
