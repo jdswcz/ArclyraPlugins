@@ -2,9 +2,9 @@
 
 Direct generators can opt into a host-owned conversation transaction through
 `PluginAiConversation.GenerateAsync(request, scope, generate, cancellationToken)`.
-OpenAI-compatible plugin 1.3.1 and Ollama plugin 1.2 use it and add thinking previews. Install these packages
-with host 39 or newer (SDK 1.2); their manifests reject older hosts that lack the new SDK.
-Existing plugins retain the same request constructor, delegate and service APIs.
+Require host 38 / SDK 1.1 for conversation transactions, or host 39 / SDK 1.2
+when also reporting separate thinking previews. Existing plugins retain the same
+request constructor, delegate and service APIs.
 
 ## Identity and ownership
 
@@ -16,10 +16,11 @@ Legacy requests without a story ID or host conversation remain isolated one-shot
 requests and never share an implicit global conversation.
 
 Within each story, the key combines a hash of the owning plugin ID and a hash of
-the provider scope. OpenAI scopes encode the stable profile ID, normalized
-endpoint and exact trimmed model ID. Ollama scopes encode the local endpoint and
-exact model name. JSON arrays make the scope unambiguous; no credential participates
-in its construction or persistence. Profile display-name changes do not reset history.
+the provider scope. Define a stable scope from the configuration identity,
+normalized endpoint and exact model ID so unrelated configurations cannot share
+history. An unambiguous encoding such as a JSON array avoids concatenation
+collisions. Do not include credentials in the scope. Use stable IDs rather than
+profile display names so renaming a profile does not reset history.
 
 The host stores an opaque, versioned JSON document in `Story.AiConversationState`
 inside the active story data file. Replacing this immutable string notifies the
@@ -51,8 +52,8 @@ retained messages again on each request. Identical guide/prompt text remains two
 distinct sections. Empty guides are omitted. Requests serialize through a weakly
 story-owned asynchronous gate, preventing concurrent lost updates. Partial previews,
 failed requests, canceled requests and premature stream termination never commit.
-An explicit provider output-limit finish remains a successful draft with a warning,
-matching the existing OpenAI behavior; it is retained as returned.
+An explicit provider output-limit finish remains a successful draft with a warning;
+it is retained as returned.
 
 Regenerating a retained chapter temporarily removes that chapter and all later
 turns from the request. Only success replaces that suffix; failure leaves the old
@@ -63,9 +64,8 @@ appended. Editing a saved draft does not silently rewrite AI history.
 
 In host 40+, choose **Start new AI conversation…** only from Smart Builder’s
 **Generate with AI plugin** menu. Confirm **Clear history** to remove all direct-plugin
-conversation scopes for the current story, including every API profile and Ollama
-model. Chapters/drafts, other stories and provider settings are unchanged. The
-next request starts with the current Story Guide and chapter prompt.
+conversation scopes for the current story across provider profiles and models.
+Chapters/drafts, other stories and provider settings are unchanged. The next request starts with the current Story Guide and chapter prompt.
 
 The reset clears `Story.AiConversationState` in the active data file (default:
 `%APPDATA%\strapp\stdata.json`) and uses normal autosave/encryption. It also
@@ -75,8 +75,8 @@ and browser conversation links are not erased.
 
 - A changed SHA-256 of the exact Story Guide starts fresh, including whitespace edits.
 - A different profile, endpoint or model selects an independent conversation.
-  Switching back resumes its compatible retained history; deleting/recreating an
-  OpenAI profile gives it a new ID. Old inactive scopes are evicted by the bounds below.
+  Switching back resumes its compatible retained history; deleting/recreating a
+  profile should give it a new stable ID. Old inactive scopes are evicted by the bounds below.
 - Missing, unknown-version, oversized or malformed history is treated as empty;
   a successful generation replaces it. The story itself is unaffected.
 - The host rejects commits if the story/chapter was deleted, its guide changed,
@@ -101,21 +101,14 @@ These bounds cannot guarantee a particular model's context window. Provider
 400/422 or chat errors explain that context length may require a shorter guide/
 prompt or a larger-context model. There is no automatic retry or hidden billing.
 
-## Validation
+## Integration validation
 
-Run all regression tests on Windows (PowerShell/cmd, one line):
+When implementing a direct generator, verify message order, persistence after
+normal autosave and restart, story/profile/model isolation, guide invalidation,
+regeneration, cancellation, failed or incomplete responses, context bounds and
+concurrent requests. Ensure thinking previews never enter saved conversation turns.
 
-`dotnet test Arclyra.Tests/Arclyra.Tests.csproj -c Debug -p:ArclyraPluginPackageOnBuild=false`
-
-`AiConversationTests` covers order, persistence reload, isolation, guide reset,
-failed/canceled transactions, regeneration, invalid history, bounds and concurrency.
-`AiConversationTransportTests` uses real clients with fake HTTP to verify OpenAI
-and Ollama payloads, profile/model isolation, streaming, thinking exclusion and
-incomplete-response rejection. `AiConversationHostTests` covers actual story JSON
-round trips, plugin/story isolation and deletion/data-switch/guide-change guards.
-
-Manual acceptance: generate chapters 1 and 2, close/reopen the story and restart
-after autosave, then generate chapter 3. Inspect a local test server's messages
-to confirm the retained guide and chapters 1/2. Repeat with another story and
-profile/model; change the guide and verify a fresh context. Live provider/WPF
-smoke testing is separate from automated fake-transport coverage.
+Generate chapters 1 and 2, close and reopen the story, then generate chapter 3.
+Inspect a local test transport's messages to confirm the retained guide and earlier
+turns. Repeat with another story and provider scope, reset history during a pending
+request, and change the guide to verify stale results cannot restore old history.

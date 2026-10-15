@@ -1,12 +1,12 @@
 # Arclyra Plugin Developer Guide
 
-This reference documents **SDK 1.22.0 and host behavior through version 62**, checked against Arclyra Writing Studio branch `202610_Perchance` at commit `60fc50e81f6318093de9c1192bf43ec85db6c978` (October 15, 2026). See [compatibility and migration](sdk-compatibility.md) before using a newer API. This is a source compatibility baseline, not a claim that the corresponding NuGet package or host release is already published.
+This reference documents **SDK 1.22.0 and host behavior through version 62**, checked against Arclyra Writing Studio commit `60fc50e81f6318093de9c1192bf43ec85db6c978` (October 15, 2026). See [compatibility and migration](sdk-compatibility.md) before using a newer API. This is a source compatibility baseline, not a claim that the corresponding NuGet package or host release is already published.
 
 The `src/Arclyra.PluginSdk` project and packaged sample binaries in this repository are an **older SDK 1.0.2 snapshot**; they have not been republished by this documentation update. They do not contain the newer APIs described below. Build against a matching published SDK or the current SDK source supplied with the host you target. The basic samples remain introductory examples.
 
 Arclyra plugins extend Arclyra Writing Studio with optional commands, menu items, settings pages, workspace panels, story UI integrations, Smart Builder tools, AI-provider configuration helpers, and host-mediated data workflows. Plugins are distributed as `.arcplugin` packages, installed into the user's writable app-data area, discovered at runtime, and initialized through `Arclyra.PluginSdk`.
 
-This repository is the maintained plugin-authoring reference. The SDK package README is intentionally short and links here for the full documentation. For working examples, build and inspect the sample plugins under `SamplePlugins/`.
+This repository contains SDK documentation and introductory samples for plugin developers. End-user plugin guides, provider setup instructions and plugin-specific release or qualification documentation are outside its scope. The SDK package README is intentionally short and links here for the full documentation. For working examples, build and inspect the sample plugins under `SamplePlugins/`.
 
 ## First setup steps
 
@@ -131,10 +131,8 @@ Read these pages for the API details that were split out of this root guide:
 - [Persistent story conversations](conversations.md)
 - [Chapter editor actions](editor-actions.md)
 - [Reusable prompt-entry versions](prompt-entry-versions.md)
-- [Browser workflows and Perchance reference](perchance-integration.md)
 - [Ordinary plugins and Trusted Components](trusted-components.md)
 - [SDK compatibility and migration](sdk-compatibility.md)
-- [First-party OpenAI-compatible API plugin](openai-compatible.md)
 - [UI extension API](ui-extension-api.md)
 - [Host services API](host-services-api.md)
 - [Events API](events.md)

@@ -140,7 +140,7 @@ Omit `--output` to overwrite the original package.
 
 ## Separate first-party signing
 
-Arclyra AI uses a separate, reserved Trusted Component identity and dedicated release signature. The host's current signing tool includes release/operator commands that are not present in this repository's historical tool ZIP. They do not replace ordinary plugin developer signing. See [ordinary plugins and Trusted Components](trusted-components.md) for the identity and authority boundary.
+Reserved first-party Trusted Components require a separate host-verified signing profile. Ordinary developer signing cannot grant that identity or placement. Use the developer signing workflow documented here for SDK plugins; see [ordinary plugins and Trusted Components](trusted-components.md) for the authority boundary.
 
 ## Troubleshooting
 

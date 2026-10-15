@@ -78,10 +78,6 @@ Use `IPluginContext.AiGenerationWindowService` for audited, host-mediated operat
 AI provider and AI generation window notifications are documented in the [Events API](events.md).
 
 
-## First-party API provider
-
-The `Arclyra.OpenAiPlugin` reference implementation uses direct generation handlers, progressive `GeneratedChapterDraft` snapshots, story conversations, plugin-owned settings and Windows DPAPI-protected credentials. See [configuration, packaging, security, and compatibility](openai-compatible.md). The [Ollama plugin](ollama.md) uses the same conversation workflow through its chat API. Browser generators are unchanged.
-
 ## Story conversation transactions (SDK 1.1)
 
 The host supplies stable story/chapter IDs and an optional `request.Conversation`.

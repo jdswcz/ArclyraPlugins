@@ -270,12 +270,14 @@ registries throws a clear `NotSupportedException`. Use host 51 as minimum compat
 
 ## Dedicated first-party AI placement (SDK 1.12 / host 50)
 
-`IPluginContext.FirstPartyUiService` is non-null only for verified Arclyra AI.
+`IPluginContext.FirstPartyUiService` is reserved for host-verified first-party
+Trusted Components and is null for ordinary plugins.
 It provides `RegisterArclyraAiPanel(Func<FrameworkElement>)` and
 `OpenArclyraAiPanel()` for the single host-owned AI window. The factory runs on
 the UI dispatcher and includes setup/settings in its content. No capability
 string, display label, copied panel ID or ordinary signature obtains this
-placement. Verified AI may not register ordinary settings/workspace panels.
+placement. Components using this placement may not register ordinary
+settings/workspace panels.
 Ordinary `UiRegistry` registrations and owner scoping remain unchanged.
 The service expires on component unload; retained calls fail after disposal.
 
@@ -348,7 +350,7 @@ preserves the complete single-chapter preview; values 200–10000 request automa
 length suggestions. The host keeps cumulative source text, publishes only the
 currently growing segment to Smart Builder, prefers paragraph then sentence breaks,
 and preserves every character across segments. It does not infer narrative boundaries
-or completion. Perchance uses a default target of 2000 words.
+or completion. Choose a target appropriate for your integration.
 
 `PluginAiGenerationPasteActionContext.ReviewAndImportAsChaptersAsync` is optional
 and available only for a captured host chapter transaction. It opens a host-owned

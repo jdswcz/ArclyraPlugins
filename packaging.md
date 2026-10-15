@@ -42,8 +42,8 @@ package, then runs normal `sign-package` and `verify-package --developer-name ..
 Verification uses the host's pinned ordinary developer trust root and validates
 the content hash/signature; it rejects Trusted Component declarations. A signing
 or verification failure removes the incomplete archive. Existing unsigned sample
-builds retain the default false. The Perchance project requires signing in both
-Debug and Release and uses the same external developer key triplet as OpenAI/Ollama.
+builds retain the default false. Set this property in each build configuration
+that must produce a developer-signed package.
 
 Use the signing metadata workflow described in [Plugin signing tool](signtool.md) when distributing reviewed packages. Keep signing metadata compatible with host package inspection and validation.
 
@@ -52,9 +52,3 @@ inside the same `.arcplugin` layout. A declared trusted package must pass dedica
 key/identity/integrity verification before replacement or load; ordinary developer
 signatures and user review cannot satisfy it. Do not place detached signature
 metadata both at the archive root and under `plugin/`.
-
-Arclyra AI additionally runs its own trusted release-signing target after packaging
-in Debug/Release Visual Studio builds. Its external private key must match the
-public key pinned in the host; failed signing removes the unverified package.
-See [the Trusted Component authority boundary](trusted-components.md). Ordinary SDK targets
-and developer signing are unchanged.
