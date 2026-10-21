@@ -49,6 +49,9 @@ public static class PluginCapabilities
     /// </summary>
     public const string AiGeneration = "ai.generation";
 
+    /// <summary>Allows requesting local historical summaries from the verified Arclyra AI component.</summary>
+    public const string AiSummarize = "ai.summarize";
+
     /// <summary>
     /// Allows a plugin to access the live Chromium browser in the AI generation window.
     /// </summary>
@@ -172,6 +175,7 @@ public static class PluginCapabilities
         AiProvidersRead,
         AiProvidersWrite,
         AiGeneration,
+        AiSummarize,
         AiGenerationBrowserAccess,
         EventsSubscribe,
         EventsStory,

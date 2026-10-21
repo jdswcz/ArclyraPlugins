@@ -5,17 +5,17 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <Version>0.1.1</Version>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <ArclyraPluginPackageName>Arclyra.PluginTemplate.arcplugin</ArclyraPluginPackageName>
-    <ArclyraPluginPackageScript>$(MSBuildProjectDirectory)\package-arcplugin.ps1</ArclyraPluginPackageScript>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="package-arcplugin.ps1" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arclyra.PluginSdk" Version="1.0.2" />
+    <PackageReference Include="Arclyra.PluginSdk" Version="1.31.0" PrivateAssets="all" ExcludeAssets="runtime" />
   </ItemGroup>
 
 </Project>

@@ -25,6 +25,12 @@ public interface IPluginContext
     /// </summary>
     IPluginProtectedStorageService? ProtectedStorageService => null;
 
+    /// <summary>Capability-gated local Arclyra AI historical summaries; null on older hosts.</summary>
+    IPluginStorySummaryService? StorySummaryService => null;
+
+    /// <summary>Optional host-owned continuity memory; null on older hosts.</summary>
+    IPluginStoryMemoryService? StoryMemoryService => null;
+
     /// <summary>
     /// Gets the current Arclyra application version.
     /// </summary>

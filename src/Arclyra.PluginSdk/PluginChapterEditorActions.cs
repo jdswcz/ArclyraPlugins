@@ -4,7 +4,10 @@ namespace Arclyra.PluginSdk;
 public enum PluginChapterEditorEditKind
 {
     InsertAtCaret,
-    ReplaceSelection
+    ReplaceSelection,
+    /// <summary>Host 71: replace the exact captured selection, or the complete captured
+    /// document when selection length is zero. Whitespace-only targets are rejected.</summary>
+    ReplaceSelectionOrDocument
 }
 
 /// <summary>Describes the outcome of a host-mediated editor change.</summary>

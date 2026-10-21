@@ -1,12 +1,12 @@
 {
   "id": "com.arclyra.plugins.sample",
   "name": "Arclyra Sample Plugin",
-  "version": "1.6.0",
-  "description": "A demo-only sample plugin that demonstrates Arclyra commands, menus, dialogs, settings pages, workspace panels, editor replacements, Story Overview, Story List actions, New Story Wizard and Entry Management UI hooks, Smart Builder extension points, prompt context/source APIs, optional plugin-owned AI provider registration, direct AI generation, AI generation paste actions and browser-window inspection, preferences/license/metadata snapshots, logging, lifecycle hooks, host events, and read/write story data access when permitted.",
+  "version": "1.6.1",
+  "description": "A demo-only sample plugin that demonstrates Arclyra commands, menus, dialogs, settings pages, workspace panels, editor replacements, Story Overview, Story List actions, New Story Wizard and Entry Management UI hooks, Smart Builder extension points, prompt context/source APIs, optional plugin-owned AI provider registration, direct AI generation, AI generation paste actions and browser-window inspection, preferences/metadata snapshots, logging, lifecycle hooks, host events, and read/write story data access when permitted.",
   "author": "Arclyra",
   "entryAssembly": "Arclyra.SamplePlugin.dll",
   "entryType": "Arclyra.SamplePlugin.SamplePlugin",
-  "minHostVersion": "1.0.0",
+  "minHostVersion": "78.0",
   "capabilities": [
     "story.read",
     "prompt.read",

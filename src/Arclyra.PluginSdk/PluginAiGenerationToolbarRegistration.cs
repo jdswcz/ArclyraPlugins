@@ -29,7 +29,14 @@ public sealed record PluginAiGenerationToolbarAction(
 {
     /// <summary>Disable this action when the host has no valid saved chapter import target.</summary>
     public bool RequiresChapterTarget { get; init; }
+    /// <summary>SDK 1.31. Allows this explicit start/stop control during an active automation lease.</summary>
+    public bool IsAutomationControl { get; init; }
+    /// <summary>Optional dynamic caption, evaluated by the host dispatcher.</summary>
+    public Func<string>? CurrentDisplayName { get; init; }
     public bool IsSecondary { get; init; }
+    /// <summary>SDK 1.26 / host 67. Opt into captured manuscript revision/source validation
+    /// for this explicit action. Other toolbar and passive observation actions avoid that capture.</summary>
+    public bool RequiresManuscriptContext { get; init; }
     /// <summary>Optional transient visibility, evaluated on the host dispatcher.</summary>
     public Func<bool>? IsVisible { get; init; }
 }

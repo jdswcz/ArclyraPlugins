@@ -1,10 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <Version>1.6.1</Version>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <ArclyraPluginPackageName>SamplePlugin.arcplugin</ArclyraPluginPackageName>
   </PropertyGroup>
 
@@ -13,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arclyra.PluginSdk" Version="1.0.2" />
+    <PackageReference Include="Arclyra.PluginSdk" Version="1.31.0" PrivateAssets="all" ExcludeAssets="runtime" />
   </ItemGroup>
 
 </Project>

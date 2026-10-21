@@ -484,3 +484,108 @@ same browser invocation scope and revalidates document/revision/selection/worksp
 owner, provider and window across awaits. It opens no new/global browser and grants
 neither generation nor persistence. Automatic task acquisition still passes through
 existing explicit proposal/diff/application callbacks.
+
+## Chapter outline and draft discard (SDK 1.24 / host 65)
+
+`PluginAiGenerationPasteActionContext` adds optional `CurrentChapterOutline` (raw
+user outline), one-based `CurrentChapterNumber`, and `CurrentRenderedPromptWithoutOutline`.
+The last is the complete guide plus chapter prompt rendered without the outline
+section through normal composition/transforms (host 66 also removes its title). All other prompt content remains.
+Do not remove outline text by unrestricted string replacement in the full prompt.
+
+`DiscardChapterDraftAsync` accepts a `PluginBrowserChapterDiscardRequest` with an
+idle source inspector, a compare-and-replace script factory, and a fresh preview
+factory. It is available only in a current chapter toolbar invocation with browser
+capability. The host validates owner, chapter/workspace/document, source overview,
+raw preserved prefix and acknowledged complete replacement; it clears unsaved
+staging only after success. It never deletes saved chapter revisions. A stale,
+unknown, changed or generating source fails without clearing Smart Builder.
+
+Chapter previews may set `EstablishChapterDraftBoundary`, `ChapterDraftOverview`
+and `InitialBrowserStory` after explicit insertion/loading. Passive observation of
+nonempty documents must not establish a discard boundary. Repeated insertions keep
+the existing current boundary. Full-story loading replaces it with the recorded
+final-chapter start. Discard stops the old publisher, clears staging only after
+acknowledgment and rearms at the preserved prefix; loaded-story ranges are updated
+so the removed last-chapter text cannot return as a preview prefix.
+
+All additions are optional; existing constructors and SDK assembly identity
+`1.2.0.0` remain compatible. Plugins requiring these hooks must require host 65.
+
+
+## Formatted outline and review choice (SDK 1.25 / host 66)
+
+`PluginAiGenerationPasteActionContext.CurrentRenderedChapterOutline` supplies the
+outline section as rendered by its chapter-template placeholder, including its title
+and configured row prefixes/numbering. `CurrentChapterOutline` remains raw for older
+consumers. `CurrentRenderedPromptWithoutOutline` now removes the whole outline
+placeholder (including its title), while preserving unrelated template/context text.
+An empty/missing outline yields an empty separate section.
+
+`PluginTextReviewRequest.Option` optionally supplies a `PluginTextReviewOption`:
+`Label`, `AlternativeText`, and `IsSelectedByDefault`. Unchecked uses `request.Text`;
+checked uses `AlternativeText`. The same host-owned dialog retains independent edited
+buffers when toggling, and returns `PluginDialogInputResult.IsReviewOptionSelected`
+(null for a plain review). Cancel never authorizes insertion. The optional
+`AllowEmptyTextWhenSelected` enables an empty main field when another approved
+nonempty field will be inserted. Plain review empty-text behavior remains unchanged.
+
+Both buffers use `MaximumLength`; labels must be nonempty and at most 240 characters.
+`OriginalText` comparison and `Option` are mutually exclusive. Canceled tokens retain
+the existing pre/post-review checks and close behavior. Constructors and SDK assembly
+identity remain compatible; features needing this option require host 66.
+
+
+## Derived browser context (SDK 1.26 / host 67)
+
+`PluginAiGenerationToolbarAction.RequiresManuscriptContext` opts an explicit action into captured `CurrentStoryId`, `CurrentChapterId`, `CurrentManuscriptRevision` and invocation-scoped `ValidateRollingContextSource`. The revision is content-derived and includes chapter identities and revision choices. Validation is a read-only source-equality check, not permission to replace a website or manuscript. Recheck after awaits and review; never retain these invocation delegates in passive observation.
+
+`PluginBrowserFrameScriptRequest.RebaseChapterObservation` receives the host-established earlier-chapter prefix after insertion/loading boundary validation. Return a read-only observer request retaining `InitialBrowserStory` and capturing the complete current draft. This replaces a saved preview prefix so repeated preparation counts the whole chapter rather than only additions.
+
+## Compact browser context (SDK 1.27 / host 68)
+
+`ArclyraRollingContextSource` supplies bounded manuscript text including unsaved staging. `IsRollingContextCurrent` checks captured identity, revision and staging without requiring equality with browser prose. `ReadRollingBrowserSource` maps only known current-chapter boundaries; a null start means unknown history, not an inferred chapter range. If the sources differ, obtain an explicit author choice before writing.
+
+After review, `PluginBrowserFrameScriptRequest.CompactChapterContext` carries `ManuscriptRevision`, complete current-chapter seed and approved `DiscardReplacement`. The host checks the captured revision and updates unsaved staging only. Use the complete compact editor as the observer baseline, set `PreviewPrefix` to the chapter seed and leave `RebaseChapterObservation` null. Emit only new additions and count seed plus additions. Discard restoration must contain approved preceding context only; preserve source/recovery snapshots through protected storage before removing historical prose. No canonical revision is changed by this lease.
+
+Host 69 fixes eligibility for a selected chapter that has later planned/saved chapters without changing binary contracts. Its bounded source ends at the selected chapter. `ValidateRollingContextSource` may return false to require an explicit source choice; that is not a chapter-eligibility check. A reviewed current compact context can replace obsolete loaded-story mapping. Passive observation and insertions without that reset retain their existing restrictions. These SDK contracts do not activate a particular plugin workflow.
+
+## Local summary requests (SDK 1.28 / host 70)
+
+Declare `ai.summarize` and use `context.StorySummaryService` for bounded local summaries of caller-supplied prose. The service does not change manuscript or browser content. See [summary requests](story-summary-api.md) for profile identity, size limits, cancellation and review requirements. Registration is reserved for a host-verified component; ordinary plugins consume the service.
+
+`PluginAiGenerationPasteActionContext.Progress` reports status for a toolbar invocation. **Cancel action** cancels the invocation, including summary inference; long-lived browser preview retains its own toolbar lifetime. Do not retain the invocation token for observation.
+
+## Active browser automation (SDK 1.31 / host 77)
+
+`PluginAiGenerationPasteActionContext.BeginAutomation` is an optional callback available
+only during an explicit, capability-authorized toolbar action with a current chapter.
+Call it with a `PluginBrowserAutomationSessionRequest` (owned configuration, direct
+frame element ID, total duration from 1 minute to 2 hours). A successful result returns
+`IPluginBrowserAutomationSession`; return from the toolbar callback immediately. Do
+not await the entire automation there: the session waits for the invocation to unwind.
+The callback is absent during automatic observation preparation and on earlier hosts.
+
+The host allows one active lease per browser. It captures plugin/provider, workspace,
+story/chapter, prompt context and document revision, and publishes through a separately
+captured draft transaction. Browser actions stay within the same unique visible direct
+frame and existing `aiGeneration.browserAccess` policy; no other page/iframe access or
+persistence capability is granted. `RunFrameScriptAsync` and `PublishPreviewAsync`
+are dispatcher-marshaled, cancellable and bounded. Await each accepted preview before
+starting another DOM cycle. Preview means unsaved staging, never approval or a saved
+revision. Author edits revoke the lease rather than being overwritten.
+
+The session outlives the initiating action's token but is revoked by toolbar/window
+lifetime, navigation, provider/plugin removal, workspace/chapter or author edits, and
+its total time limit. It never retains an invocation `AsyncLocal` or its disposed
+transaction. Dispose after completion; observe the session cancellation token. On
+cancellation do not act in a new document. A DOM observer should have its own short
+renewable expiry and must never click from a timer. `ReportProgress` shows bounded
+status, whole-chapter word count/target and cycle number.
+
+Toolbar actions may opt into `IsAutomationControl` to remain available for explicit
+Start/Stop while a lease is active. Other plugin actions and automatic observation
+preparation are blocked for that browser until release. `CurrentDisplayName` is an
+optional dispatcher-evaluated caption; existing actions/constructors and assembly
+identity `1.2.0.0` are unchanged. Passive streaming remains a separate API and cannot
+open an active automation lease.

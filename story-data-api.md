@@ -48,6 +48,26 @@ context.StoryDataService.DeleteStory(created.Id);
 
 `PluginCreateChapterRequest.GeneratedContent` and `PluginUpdateChapterRequest.GeneratedContent` replace the generated-draft collection when supplied.
 
+Bulk `UpdateChapter.GeneratedContent` synchronizes canonical revisions and legacy
+texts/links. Exact surviving texts retain their revision objects, IDs, metadata and
+Current/Final selection across reordering; previously unseen text creates a new
+revision. Retained identical texts keep their original relative occurrence order.
+Reducing a group of identical revisions to only some occurrences is ambiguous and
+throws `InvalidOperationException`; select the intended revision in the host UI
+for deletion first. Removing all occurrences is unambiguous, subject to protection.
+Removing/replacing Final, removing the last revision, or starting from inconsistent
+storage also throws. A rejected bulk operation leaves the entire chapter unchanged,
+including `Content` supplied in the same request. A null `GeneratedContent` leaves
+revisions alone. To edit a specific revision while retaining its ID, use the
+individual draft update method after re-reading its current index.
+
+`CreateGeneratedDraft` also refuses inconsistent canonical/legacy storage with
+`InvalidOperationException` before changing text, selections or conversation links.
+Ask the author to keep the unsaved result and use **Recover missing versions** in
+the host's **Review generated versions** window, then start a fresh save operation.
+The host does not silently discard orphan links or reconcile conflicts on behalf
+of a plugin. SDK signatures and capability requirements are unchanged.
+
 ## Entry mutations
 
 Arclyra supports host-owned mutations for writing guidance, characters, items, world details, custom entries, and generated drafts.
@@ -79,6 +99,16 @@ PluginCustomEntryDto custom = context.StoryDataService.CreateCustomEntry(
 PluginGeneratedDraftDto draft = context.StoryDataService.CreateGeneratedDraft(
     new PluginCreateGeneratedDraftRequest(story.Id, chapter.Id, "Generated chapter draft text."));
 ```
+
+Individual generated-draft create/update/delete operations update both the canonical
+revision and the legacy text list. Creating a chapter with initial generated texts
+materializes distinct revision IDs immediately, including identical texts.
+Deleting the last revision or a revision marked Final throws `InvalidOperationException`
+with guidance; create another revision or clear Final in the host UI first.
+Divergent canonical/legacy text, conversation links or ambiguous IDs also fail without
+changing the chapter. Keep a backup for recovery; the host does not guess which version
+to discard. Re-read the story immediately before using a legacy draft index. This
+index-based SDK does not provide a durable handle for a retained UI selection.
 
 Each model family has matching update and delete methods:
 
@@ -127,3 +157,7 @@ PluginPromptSourceEntryMutationResult result = context.PromptContextService.Crea
 `CreatePromptSourceEntry`, `UpdatePromptSourceEntry`, and `DeletePromptSourceEntry` require `story.write` and preserve the same host limits and observable model behavior as the typed story-data methods.
 
 Story mutations can publish story, chapter, generated-draft, and transfer-related notifications; see [Events API](events.md) when your plugin needs to react to host changes.
+
+Native reusable continuity summaries are exposed separately through the optional
+[story memory service](story-memory-api.md) (SDK 1.30 / host 72). Story-data read/write
+APIs do not authorize overwriting author-edited summaries.

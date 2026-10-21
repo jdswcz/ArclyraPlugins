@@ -30,6 +30,40 @@ public sealed record PluginAiGenerationPasteActionContext(
     string? CurrentRenderedPrompt,
     CancellationToken CancellationToken)
 {
+    /// <summary>SDK 1.31 / host 77. Available only during an explicit toolbar action with browser
+    /// access and a current chapter. Captures a separate cancellable active session; null on older hosts.</summary>
+    public Func<PluginBrowserAutomationSessionRequest, PluginBrowserAutomationResult<IPluginBrowserAutomationSession>>? BeginAutomation { get; init; }
+
+    /// <summary>Optional host status progress for the current cancellable toolbar action.</summary>
+    public IProgress<string>? Progress { get; init; }
+
+    /// <summary>SDK 1.26 / host 67. Stable captured story/chapter identities for derived browser context.</summary>
+    public string? CurrentStoryId { get; init; }
+    public string? CurrentChapterId { get; init; }
+    /// <summary>Content-derived stored manuscript revision, including chapter identities and revision choices.</summary>
+    public string? CurrentManuscriptRevision { get; init; }
+    /// <summary>Invocation-scoped preflight: validates the current workspace, story, chapter and stored manuscript
+    /// and matches full browser prose to current/latest stored chapters. Does not write or consume import.</summary>
+    public Func<string, bool>? ValidateRollingContextSource { get; init; }
+    /// <summary>SDK 1.27 / host 68. Bounded Arclyra manuscript including current unsaved staging.</summary>
+    public PluginRollingStorySource? ArclyraRollingContextSource { get; init; }
+    /// <summary>Checks identity/revision/staging without requiring equality with browser prose.</summary>
+    public Func<bool>? IsRollingContextCurrent { get; init; }
+    /// <summary>Reads only known current-chapter boundaries; unknown browser text is history context.</summary>
+    public Func<string, PluginRollingStorySource?>? ReadRollingBrowserSource { get; init; }
+    /// <summary>SDK 1.24 / host 65. Raw author outline only, excluding templates and context.</summary>
+    public string? CurrentChapterOutline { get; init; }
+    /// <summary>SDK 1.25 / host 66. Outline section rendered through the chapter template,
+    /// including its placeholder title and configured row prefixes.</summary>
+    public string? CurrentRenderedChapterOutline { get; init; }
+    /// <summary>SDK 1.24 / host 65. Complete rendered guide and chapter prompt without the outline
+    /// section (host 66 removes its placeholder title too). All other template, language, instruction and context content is preserved.</summary>
+    public string? CurrentRenderedPromptWithoutOutline { get; init; }
+    /// <summary>SDK 1.24 / host 65. One-based chapter number; null when no chapter is selected.</summary>
+    public int? CurrentChapterNumber { get; init; }
+    /// <summary>SDK 1.24 / host 65. User-invoked discard of current unsaved staging and its browser
+    /// chapter. The host validates the boundary and acknowledged replacement; saved revisions stay intact.</summary>
+    public Func<PluginBrowserChapterDiscardRequest, Task<PluginBrowserAutomationResult>>? DiscardChapterDraftAsync { get; init; }
     /// <summary>Names/scopes of the actual selected prompt fields; no additional field values.</summary>
     public IReadOnlyList<string> SharedFieldLabels { get; init; } = [];
     /// <summary>SDK 1.23 / host 63. Full-story revision selection, preview, confirmation and verified replacement.

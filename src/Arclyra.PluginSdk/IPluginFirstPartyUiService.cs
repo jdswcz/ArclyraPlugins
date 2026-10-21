@@ -14,4 +14,8 @@ public interface IPluginFirstPartyUiService
 
     /// <summary>Requests opening/focusing the host-owned Arclyra AI window.</summary>
     void OpenArclyraAiPanel();
+
+    /// <summary>Registers the verified local summary utility. Revoked on component unload.</summary>
+    void RegisterStorySummarizer(IPluginStorySummaryService service)
+        => throw new NotSupportedException("Local summary registration requires Arclyra 70 or newer.");
 }

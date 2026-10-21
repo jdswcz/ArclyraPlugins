@@ -14,6 +14,7 @@ Capabilities are declared in `plugin.json` and gate SDK services at runtime. The
 | AI providers | `aiProviders.read` | Reads AI providers. | Read AI provider configurations. |
 | AI providers | `aiProviders.write` | Adds AI providers. | Add, update, or remove plugin-owned AI provider configurations. |
 | AI generation | `ai.generation` | Generates AI drafts. | Act as an AI generation bridge and return generated chapter drafts directly to Arclyra. |
+| AI summaries | `ai.summarize` | Requests local summaries. | Consume the local [summary utility](story-summary-api.md) (host 70); with `story.read`, request fresh [native continuity memory](story-memory-api.md) (host 72). Grants no provider registration or manuscript writer. |
 | AI generation | `aiGeneration.browserAccess` | Uses audited AI generation browser automation. | Access the live Chromium browser in the AI generation window. |
 | Events | `events.subscribe` | Subscribes to events. | Subscribe to the host event bus. Pair with specific event-domain capabilities. See [Events API](events.md). |
 | Events | `events.story` | Receives story events. | Subscribe to story lifecycle events. |

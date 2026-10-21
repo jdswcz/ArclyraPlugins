@@ -1097,7 +1097,7 @@ public sealed class SamplePlugin : IArclyraPlugin
             lines.Add($"• Preferences: not permitted ({exception.Message}).");
         }
 
-        lines.Add($"• License: premium/unlimited active = {context.LicenseService.IsPremiumActive}.");
+        lines.Add("• Arclyra is free; the legacy license service is intentionally not queried.");
     }
 
     private static void AddPluginMetadataSummary(IPluginContext context, ICollection<string> lines)

@@ -38,7 +38,11 @@ public interface IPluginDialogService
 /// <summary>
 /// Result returned by a plugin input dialog.
 /// </summary>
-public sealed record PluginDialogInputResult(bool IsConfirmed, string InputText);
+public sealed record PluginDialogInputResult(bool IsConfirmed, string InputText)
+{
+    /// <summary>SDK 1.25 / host 66. Selected optional review checkbox; null for a plain review.</summary>
+    public bool? IsReviewOptionSelected { get; init; }
+}
 
 /// <summary>
 /// Result values returned by a plugin yes/no/cancel dialog.

@@ -58,3 +58,23 @@ the existing frame service while its original snapshot remains current. Selectio
 and subsequent reads revalidate editor/selection/document/revision/workspace and
 browser identity; no global window fallback, automatic acceptance or save is granted.
 This mirrors the existing entry-management browser handoff and preserves older constructors.
+
+### SDK 1.29 / host 71: selection-or-document replacement
+
+`PluginChapterEditorEditKind.ReplaceSelectionOrDocument` is an additive enum value
+(`2`); `InsertAtCaret` (`0`) and `ReplaceSelection` (`1`) retain their behavior.
+Register it with `RequiresSelection: false` to let an author explicitly rewrite
+either the exact captured nonempty selection or, when its length is zero, the
+complete captured document. Show that scope before generating/applying. A
+whitespace-only target or replacement is rejected; whitespace selection never
+escalates to a whole-document write. The host rechecks all original identity,
+revision, content, selection and caret fields, applies one Undo transaction and
+does not save. Host 71 also pins the workspace/story object references at apply,
+revokes retained writers after invocation completion, and tracks selection/caret
+revisions so moving away and back cannot revive a captured action.
+
+No existing constructors, interface signatures or SDK assembly identity change.
+Plugins using the new enum must declare minimum host `71.0`; older plugins retain
+their insert/selection semantics.
+
+See the [compilable editor example](SamplePlugins/Arclyra.SdkExamples/SdkUsageExamples.cs) for a reviewed selection-or-document action.

@@ -17,6 +17,8 @@
 | `DialogService` | `ui.dialogs` | Shows host-owned informational, confirmation, text-input, full-text review and structured task-setup dialogs. |
 | `EventBus` | `events.subscribe` plus event-domain capabilities | Subscribes to stable host events. See [Events API](events.md). |
 | `AiProviderService` | `aiProviders.read`, `aiProviders.write`, or `ai.generation` | Reads and manages AI provider configurations, including plugin-owned direct generators. |
+| `StorySummaryService` | `ai.summarize` | Optional local summary utility for caller-supplied prose (SDK 1.28 / host 70). Returns a profile and bounded plain text; does not apply it. See [summary requests](story-summary-api.md). |
+| `StoryMemoryService` | `story.read`; also `ai.summarize` for refresh | Optional host-owned continuity snapshots and on-demand freshness (SDK 1.30 / host 72). Plugins cannot overwrite author edits. See [native memory](story-memory-api.md). |
 | `StoryDataService` | `story.read` or `story.write` | Reads story snapshots and performs explicit host-owned story mutations. |
 | `PromptContextService` | `prompt.read`, `prompt.write`, `story.read`, or `story.write` depending on method | Reads rendered prompt context, manages prompt details, and manages prompt source entries. |
 | `SmartBuilderService` | `ui.smartBuilder`, `prompt.read`, or `prompt.write` depending on registration | Registers guided chapter setup UI actions, validators, and transforms. |
@@ -118,6 +120,8 @@ Use host dialogs instead of unmanaged modal windows so prompts stay themed and o
 host 54 optionally adds `OriginalText` for a host-owned read-only inline diff of the
 current editable proposal, with explicit re-review after edits. Null keeps ordinary
 review unchanged. See [full-text review](ui-extension-api.md#full-text-review-sdk-114--host-52).
+
+SDK 1.25 / host 66 adds `PluginTextReviewRequest.Option` for independent editable buffers selected by a checkbox; `PluginDialogInputResult.IsReviewOptionSelected` returns the choice. It cannot be combined with `OriginalText`. See [review choice](ui-extension-api.md#formatted-outline-and-review-choice-sdk-125--host-66).
 
 ## Preferences
 
