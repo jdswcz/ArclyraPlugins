@@ -1,8 +1,8 @@
 # Arclyra Plugin Developer Guide
 
-This reference documents **SDK 1.31.0 and host behavior through version 78**, checked against Arclyra Writing Studio **master** commit `af732dfbb4d9d56b5dc08ab060db1c50582e5451` (October 21, 2026). See [compatibility and migration](sdk-compatibility.md) for the minimum host required by each API. This is a source compatibility baseline; package and host release availability must be checked separately.
+This developer guide documents the Arclyra SDK **1.34.0** and host behavior through **104**, compared with read-only `jdswcz/ArclyraWritingStudio` **dev** commit `bc66e153c636a25d23166ce41d04b8fb6015b294` (October 31, 2026). [Compatibility and migration](sdk-compatibility.md) lists feature-specific host minima. The source synchronization does not itself publish a NuGet package or host release.
 
-The `src/Arclyra.PluginSdk` project contains the matching contracts, DTOs, helpers and MSBuild packaging targets. Existing sample/template sources now reference **1.31.0**, exclude the host SDK from runtime output, and target host **78.0**. New [compilable recipes](SamplePlugins/Arclyra.SdkExamples/README.md) cover memory, summaries, editor actions, review choices and automation lease acquisition. The older signed/unsigned binaries in `SamplePlugins/packaged` remain historical examples and are not rebuilt or re-signed by this update.
+`src/Arclyra.PluginSdk` contains the matching C# contracts and packaging helpers (except for a repository-specific package README). This update covers live summary previews (SDK 1.32), source-bound generation (1.33) and trusted-only prompt review (1.34). Existing example/template projects and historical binary packages were deliberately left unchanged: some examples still reference SDK 1.31.0.
 
 Arclyra plugins extend Arclyra Writing Studio with optional commands, menu items, settings pages, workspace panels, story UI integrations, Smart Builder tools, AI-provider configuration helpers, and host-mediated data workflows. Plugins are distributed as `.arcplugin` packages, installed into the user's writable app-data area, discovered at runtime, and initialized through `Arclyra.PluginSdk`.
 
@@ -43,7 +43,7 @@ Minimal project file for a WPF-capable plugin targeting this reference baseline 
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arclyra.PluginSdk" Version="1.31.0" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Arclyra.PluginSdk" Version="1.34.0" PrivateAssets="all" ExcludeAssets="runtime" />
   </ItemGroup>
 </Project>
 ```
@@ -130,6 +130,7 @@ Read these pages for the API details that were split out of this root guide:
 - [Compilable SDK usage examples](SamplePlugins/Arclyra.SdkExamples/README.md)
 - [Prompt context API](prompt-context-api.md)
 - [Smart Builder API](smart-builder-api.md)
+- [Local prompt review (SDK 1.34)](smart-builder-api.md#local-prompt-review-sdk-134--host-102)
 - [AI generation API](ai-generation-api.md)
 - [Persistent story conversations](conversations.md)
 - [Chapter editor actions](editor-actions.md)
@@ -144,6 +145,16 @@ Read these pages for the API details that were split out of this root guide:
 - [Lifecycle events](lifecycle-events.md)
 - [Packaging](packaging.md)
 - [Plugin signing tool](signtool.md)
+
+## SDK additions since 1.31
+
+**SDK 1.32 / host 86** adds optional `IPluginStorySummaryProgress` typed cumulative previews and completed-source counters. These are ephemeral and never authoritative. See [summary service](story-summary-api.md).
+
+**SDK 1.33 / host 92** adds opt-in `RequireCurrentSourceSnapshot`, `IsSourceSnapshotCurrent`, `SourceSnapshotInvalidationToken` and `PluginAiGenerationIncompleteException`. Incomplete previews are never automatically saved; host 93 requires a new explicit decision before restart. See [source-bound generation](ai-generation-api.md#source-bound-generation-sdk-133--host-92).
+
+**SDK 1.34 / host 102** adds `IPluginPromptReviewService`, bounded review targets and suggestions, and `RegisterPromptReviewer` available only to verified first-party components. Host 104 optionally supports cumulative validated findings through `IProgress<PluginPromptReviewResult>`. Host approval remains mandatory. See [local prompt review](smart-builder-api.md#local-prompt-review-sdk-134--host-102).
+
+The SDK package version differs from host version. The assembly identity remains `1.2.0.0`. On older hosts, optional services or callbacks may be missing; use minimum-host checks as well as feature checks.
 
 ## Runtime and lifecycle model
 
@@ -283,4 +294,4 @@ If the matching version is not available from NuGet, add the local output as a p
 dotnet nuget add source "C:\path\to\ArclyraPlugins\artifacts\nuget" --name ArclyraLocal
 ```
 
-Reference version `1.31.0` in your plugin project, set `minHostVersion` to `77.0` when using active browser automation (or `78.0` for the complete checked host baseline), and keep `Arclyra.PluginSdk.dll` out of the final `.arcplugin`. Pack creates a local package; it does not publish it to NuGet.
+Reference SDK `1.34.0` when the matching package is published, or build against this local project. Set `minHostVersion` to the highest API requirement: `86.0` for typed summary previews, `92.0` for source-bound generation, `102.0` for prompt review, and `104.0` for optional cumulative review results. Do not bundle `Arclyra.PluginSdk.dll` in the final `.arcplugin`. Local pack is not NuGet publication.

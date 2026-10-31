@@ -173,3 +173,53 @@ toolbar may now prepare automatic observation and full-story loading through the
 optional [host-owned browser contracts](ui-extension-api.md#automatic-browser-observation-and-story-loading-sdk-123--host-63).
 Acquisition never implies acceptance, revision saving or canon changes. Other plugins
 keep their existing provider/generator contracts and toolbar defaults.
+
+## Source-bound generation (SDK 1.33 / host 92)
+
+A direct-generator runtime registration may set
+`PluginAiConfiguration.RequireCurrentSourceSnapshot = true`. This flag is not a
+persisted provider setting; default false preserves existing providers. The host requires a current story/chapter for the lease; legacy anonymous
+requests receive no lease, so engines requiring one must fail closed.
+
+The host supplies `request.IsSourceSnapshotCurrent` and
+`request.SourceSnapshotInvalidationToken`. The predicate reads only an atomic
+validity flag and workspace epoch, and is safe in streaming callbacks. Link the
+invalidation token with caller cancellation for runtime preparation and inference.
+The lease is terminal and expires when the handler exits. Never retain it for a
+later request, treat it as author approval or read mutable host collections from
+inference callbacks.
+
+Observable active-story/global source edits, chapter/revision changes, reorder,
+deletion and workspace switching invalidate/cancel the lease. Source graph access
+and exact fingerprint checks happen on the dispatcher at capture and before
+conversation access/commit and result return, including legacy non-notifying data
+changes. No fingerprint or inference runs on every keystroke. Conversation-state
+writes, derived summaries and story display preferences are excluded. Existing
+capability checks still apply; the lease exposes no content or write capability.
+
+A provider may throw `PluginAiGenerationIncompleteException(message, exactPreview,
+wasCanceled, innerException)` for a bounded, explicitly unapproved partial draft.
+This is an exception, never a `PluginAiGenerationResult`. Conversation generation
+propagates it without committing a turn. Smart Builder and the integrated generator
+window show the partial preview and status without applying it to a chapter or
+marking it as a completed response. Its text must fit the existing conversation
+content bound. Providers should distinguish cancellation from a failed generation
+for truthful diagnostics; no hidden restart, partial approval or cross-beat rewrite
+is authorized.
+
+Host 93 asks for an explicit decision before replacing an interrupted preview with
+a new direct generation. Keep preview (also the default and Escape choice) retains
+the exact editable text and starts no generation. Discard and restart creates a fresh
+whole-chapter request from current sources; it never resumes the interrupted beat,
+approves partial text or inserts it into conversation history. Both host surfaces
+recheck the source, cancellation and exact preview across the modal decision.
+The integrated window retains interrupted previews when changing providers or
+clearing conversation history. Normal completed results keep their existing flow.
+
+```csharp
+if (request.IsSourceSnapshotCurrent is not { } current || !current())
+    throw new InvalidOperationException("A current host source snapshot is required.");
+using var linked = CancellationTokenSource.CreateLinkedTokenSource(
+    cancellationToken, request.SourceSnapshotInvalidationToken);
+// Recheck current() at stage/stream boundaries, and return completed prose only.
+```

@@ -15,6 +15,16 @@ public sealed record PluginAiGenerationRequest(
 
     /// <summary>One-time menu choice; null means the generator's saved default. Never persisted by the host.</summary>
     public string? GenerationOptionId { get; init; }
+
+    /// <summary>
+    /// Optional cheap, thread-safe host source-lease check. Available to generators
+    /// registered with RequireCurrentSourceSnapshot. Never grants write approval.
+    /// The lease expires when sources change or the handler returns.
+    /// </summary>
+    public Func<bool>? IsSourceSnapshotCurrent { get; init; }
+
+    /// <summary>Host cancellation when the captured generation sources become stale.</summary>
+    public CancellationToken SourceSnapshotInvalidationToken { get; init; }
 }
 
 /// <summary>

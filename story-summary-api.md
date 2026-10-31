@@ -29,3 +29,27 @@ Handle invalid requests, missing local provider/model and generation failures wi
 SDK 1.28 also exposes optional `PluginAiGenerationPasteActionContext.Progress` for the current cancellable toolbar invocation. Report status there and pass `action.CancellationToken` to summary work. **Cancel action** cancels this invocation; a separate browser preview has its own lifetime. Do not retain progress callbacks or invocation tokens for long-lived observation.
 
 Default interface members preserve implementations running against the current SDK. They do not add new members to an older installed SDK binary. Set `minHostVersion` to `70.0` for this API and check for a missing service. See [compilable recipes](SamplePlugins/Arclyra.SdkExamples/README.md).
+
+## Live summary progress (SDK 1.32 / host 86)
+
+Existing `IPluginStorySummaryService.SummarizeAsync` and `IPluginStoryMemoryService.RequestFreshAsync` retain their `IProgress<string>?` parameter. When the supplied progress object also implements `IPluginStorySummaryProgress`, the local summarizer can report `PluginStorySummaryProgress(Status, PreviewText, CompletedSourceCharacters, TotalSourceCharacters)`.
+
+```csharp
+sealed class SummaryProgress : IPluginStorySummaryProgress
+{
+    private readonly IProgress<string> statuses;
+    private readonly IProgress<PluginStorySummaryProgress> previews;
+
+    public SummaryProgress(Action<string> onStatus,
+                           Action<PluginStorySummaryProgress> onPreview)
+    {
+        statuses = new Progress<string>(onStatus);
+        previews = new Progress<PluginStorySummaryProgress>(onPreview);
+    }
+
+    public void Report(string value) => statuses.Report(value);
+    public void Report(PluginStorySummaryProgress value) => previews.Report(value);
+}
+```
+
+The preview is provisional and bounded to 65,536 UTF-16 characters. Null means no preview update, while empty text clears a prior attempt. Source-character counters advance after validated input chunks, not according to predicted generated output. Never display the counts as a fabricated model-completion percentage. Discard transient previews on failure, cancellation or source invalidation; never log or persist them. Only the final successful summary result is authoritative. Existing status-only providers continue working; typed consumers require host 86 and the new SDK contract.

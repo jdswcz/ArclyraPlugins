@@ -29,6 +29,13 @@ public sealed record PluginAiConfiguration(
     public PluginAiGenerationMenu? GenerationMenu { get; init; }
 
     /// <summary>
+    /// Opts a direct-generator runtime registration into source-bound cancellation
+    /// and host checks before conversation writes/results. Not a persisted setting.
+    /// Default false preserves existing providers. SDK 1.33 / host 92.
+    /// </summary>
+    public bool RequireCurrentSourceSnapshot { get; init; }
+
+    /// <summary>
     /// Gets a value indicating whether the configuration is owned by a plugin.
     /// </summary>
     public bool IsPluginOwned => !string.IsNullOrWhiteSpace(PluginOwnerId);
@@ -39,3 +46,4 @@ public sealed record PluginAiGenerationMenu(string DisplayName, IReadOnlyList<Pl
 
 /// <summary>An opaque choice understood only by its owning generator.</summary>
 public sealed record PluginAiGenerationOption(string Id, string DisplayName);
+

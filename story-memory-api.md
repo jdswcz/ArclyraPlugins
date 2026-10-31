@@ -55,3 +55,7 @@ capabilities are not an OS sandbox.
 
 Automatic background generation, cross-request incremental reconstruction,
 provider-specific migrations and plugin summary mutation are deferred.
+
+## Live progress when refreshing memory (SDK 1.32 / host 86)
+
+`RequestFreshAsync` still accepts `IProgress<string>?`; an `IPluginStorySummaryProgress` implementation can additionally receive `PluginStorySummaryProgress` snapshots. Preview text and processed-source counts are transient, not approved continuity memory. Null preview means unchanged, and empty preview clears a prior attempt. On cancellation, error or invalidated source, discard the preview and retain the previous stored memory. Only a successful final memory DTO certifies freshness. See [typed summary progress](story-summary-api.md#live-summary-progress-sdk-132--host-86).

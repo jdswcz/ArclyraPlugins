@@ -1,8 +1,8 @@
 # SDK compatibility and migration
 
-This documentation is checked against `jdswcz/ArclyraWritingStudio` **master** commit `af732dfbb4d9d56b5dc08ab060db1c50582e5451` (October 21, 2026): SDK **1.31.0**, host **78**. Host versions below are the host's `System.Version` compatibility milestones, not SDK package versions. For the complete checked baseline use `minHostVersion: "78.0"`; active browser sessions first require `77.0`.
+Checked against read-only `jdswcz/ArclyraWritingStudio` dev commit `bc66e153c636a25d23166ce41d04b8fb6015b294` (October 31, 2026): **SDK 1.34.0**, host behavior through **104**. Host milestones and SDK package versions are independent. Choose `minHostVersion` based on the newest SDK feature needed; use `104.0` for the complete checked behavioral baseline.
 
-All SDK contracts, helpers, project metadata and packaging targets under `src/Arclyra.PluginSdk` match this source commit. Only the short package README is adapted for this standalone repository. Existing sample/template sources reference SDK 1.31.0 and target host 78.0; [compiled recipe sources](SamplePlugins/Arclyra.SdkExamples/README.md) use the local SDK project. Historical signed/unsigned archives remain unchanged. Local packing does not publish a NuGet release. No changes to ArclyraWritingStudio are needed for this synchronization.
+The standalone SDK C# sources, packaging targets and project metadata match upstream; the package README is adapted for this repository. Examples/templates and signed/unsigned archives were not modified; some still reference 1.31.0 / host 78, while the SDK recipes use a local project reference. Neither NuGet publication nor any change to ArclyraWritingStudio is implied.
 
 ## Additive milestones
 
@@ -39,10 +39,13 @@ All SDK contracts, helpers, project metadata and packaging targets under `src/Ar
 | 1.29 | 71 | Selection-or-document editor replacement with guarded one-step Undo and manual saving. |
 | 1.30 | 72 | Optional native continuity memory reads and on-demand freshness. |
 | 1.31 | 77 | Explicit host-owned active browser automation leases, acknowledged staging and dynamic Start/Stop toolbar controls. |
+| 1.32 | 86 | Optional `IPluginStorySummaryProgress`: typed transient cumulative previews and source-character progress. |
+| 1.33 | 92 | Opt-in source-bound direct generation lease and unapproved interrupted-preview exception; host 93 adds explicit keep/restart choices. |
+| 1.34 | 102 | Trusted-only read-only prompt-review contracts; host 104 optionally streams validated cumulative suggestion snapshots. |
 
 SDK 1.6 also adds built-in [chapter editor actions](editor-actions.md). Reusable [prompt-entry versions](prompt-entry-versions.md) and their assignments are part of the current baseline; older default interface implementations throw `NotSupportedException`. Host 58 groups prompt-detail registrations into **AI tools** and supplies an owned-toolbar return action without changing SDK signatures.
 
-The current SDK assembly identity is `1.2.0.0`, while its package version is `1.31.0` and its file version is `1.31.0.0`. Do not infer API support from assembly identity alone. Additive init properties preserve earlier positional constructors; they can be null when a context on the current SDK does not supply an optional service. Default interface members preserve older implementations on the current SDK; they cannot add missing members to an older installed SDK binary. New consumers need the documented minimum host as well as missing-service/callback checks. Do not use a null check as a substitute for minimum-host validation.
+The current SDK assembly identity is `1.2.0.0`, while its package version is `1.34.0` and its file version is `1.34.0.0`. Do not infer API support from assembly identity alone. Additive init properties preserve earlier positional constructors; they can be null when a context on the current SDK does not supply an optional service. Default interface members preserve older implementations on the current SDK; they cannot add missing members to an older installed SDK binary. New consumers need the documented minimum host as well as missing-service/callback checks. Do not use a null check as a substitute for minimum-host validation.
 
 ## Migration choices
 
@@ -54,6 +57,9 @@ The current SDK assembly identity is `1.2.0.0`, while its package version is `1.
 - **Summary consumers:** distinguish caller-supplied [summary proposals](story-summary-api.md) (host 70) from persisted [native memory](story-memory-api.md) (host 72). Check memory status, preserve author edits, and generate only on demand. `ai.summarize` grants no general manuscript writer or summary-provider registration.
 - **Active browser workflows:** require host 77, acquire `BeginAutomation` only in an explicit owned toolbar action and return immediately. Own the session/task until completion, observe its cancellation and dispose it; acknowledge each complete current-chapter preview before another DOM cycle. Passive observers cannot initiate active generation.
 - **Editor tools:** host 71 adds `ReplaceSelectionOrDocument`; zero selection means whole document, while whitespace-only selection never escalates. Keep explicit proposal review and handle every apply status.
+- **Typed summary progress:** host 86 and SDK 1.32 add cumulative provisional preview status, not a trustworthy completed summary. A successful final response remains authoritative.
+- **Source-bound generation:** host 92 + SDK 1.33 supply a cheap invalidation predicate and token; interrupted previews must remain unapproved and uncommitted. Host 93 requires an explicit keep/restart decision.
+- **Local prompt review:** SDK 1.34 / host 102 enables the trusted-only `IPluginPromptReviewService`, with strictly scoped editable targets and host-owned approval. Host 104 can report fully validated cumulative results through a dual-interface progress object. Ordinary plugins cannot register it.
 - **Distribution:** ordinary developer signing does not grant Trusted Component authority. Ordinary plugins must use their own IDs and omit reserved trusted profiles and first-party placement.
 
 ## Verification

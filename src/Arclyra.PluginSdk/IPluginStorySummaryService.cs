@@ -11,6 +11,18 @@ public sealed record PluginStorySummaryRequest(string HistoricalText, string? Pr
 /// <summary>A completed factual summary bound to the generation profile.</summary>
 public sealed record PluginStorySummaryResult(string Text, string Identity);
 
+/// <summary>Transient, unvalidated preview. Source counts describe completed input, never
+/// a prediction of output length. Preview text must not be persisted or logged.</summary>
+public sealed record PluginStorySummaryProgress(string Status, string? PreviewText = null,
+    int CompletedSourceCharacters = 0, int TotalSourceCharacters = 0);
+
+/// <summary>Optional progress extension. Existing string-only consumers remain compatible.
+/// Implementations marshal callbacks to their UI and discard previews on failure/cancellation.</summary>
+public interface IPluginStorySummaryProgress : IProgress<string>
+{
+    void Report(PluginStorySummaryProgress value);
+}
+
 /// <summary>Host-mediated local Arclyra AI summaries. Requires ai.summarize. Missing components fail
 /// without downloading or opening a chapter-generation workflow. Callers review results before applying them.</summary>
 public interface IPluginStorySummaryService
@@ -19,3 +31,4 @@ public interface IPluginStorySummaryService
     Task<PluginStorySummaryResult> SummarizeAsync(PluginStorySummaryRequest request,
         IProgress<string>? progress = null, CancellationToken cancellationToken = default);
 }
+

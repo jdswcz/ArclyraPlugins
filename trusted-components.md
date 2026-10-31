@@ -19,3 +19,9 @@ All plugins remain in-process .NET code with the current user's privileges. Neit
 capabilities nor signature classification provide an operating-system sandbox.
 Signature verification establishes package identity and integrity, not correctness
 of arbitrary plugin code.
+
+## Read-only prompt reviewer registration (SDK 1.34 / host 102)
+
+Only the verified allowlisted first-party component receives the optional `IPluginFirstPartyUiService.RegisterPromptReviewer(IPluginPromptReviewService)` registration. It permits local, read-only prompt-review recommendations, never direct modification or implicit approval. `IsReady` allows the host to offer setup. Host 104 optionally accepts validated cumulative result progress. Registration and outstanding work are revoked on component unload; older hosts reject the optional registration method.
+
+Ordinary plugins cannot unlock this service through capability declarations, an ordinary developer signature or self-declared trusted status. See [local prompt review contracts](smart-builder-api.md#local-prompt-review-sdk-134--host-102).

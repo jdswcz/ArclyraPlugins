@@ -15,7 +15,17 @@ public interface IPluginFirstPartyUiService
     /// <summary>Requests opening/focusing the host-owned Arclyra AI window.</summary>
     void OpenArclyraAiPanel();
 
+    /// <summary>
+    /// Current host-verified ARCLYRA_DEV status for trusted, first-party diagnostics.
+    /// Older hosts fail closed; this does not grant component signing or loading trust.
+    /// </summary>
+    bool IsDeveloperModeEnabled => false;
+
     /// <summary>Registers the verified local summary utility. Revoked on component unload.</summary>
     void RegisterStorySummarizer(IPluginStorySummaryService service)
         => throw new NotSupportedException("Local summary registration requires Arclyra 70 or newer.");
+
+    /// <summary>Registers a read-only local reviewer for the host-owned Smart Builder approval surface.</summary>
+    void RegisterPromptReviewer(IPluginPromptReviewService service)
+        => throw new NotSupportedException("Prompt review requires Arclyra 102 or newer.");
 }
