@@ -2,7 +2,7 @@
 
 This developer guide documents the Arclyra SDK **1.34.0** and host behavior through **104**, compared with read-only `jdswcz/ArclyraWritingStudio` **dev** commit `bc66e153c636a25d23166ce41d04b8fb6015b294` (October 31, 2026). [Compatibility and migration](sdk-compatibility.md) lists feature-specific host minima. The source synchronization does not itself publish a NuGet package or host release.
 
-`src/Arclyra.PluginSdk` contains the matching C# contracts and packaging helpers (except for a repository-specific package README). This update covers live summary previews (SDK 1.32), source-bound generation (1.33) and trusted-only prompt review (1.34). Existing example/template projects and historical binary packages were deliberately left unchanged: some examples still reference SDK 1.31.0.
+`src/Arclyra.PluginSdk` contains the matching C# contracts and packaging helpers (except for a repository-specific package README). This update covers live summary previews (SDK 1.32), source-bound generation (1.33) and trusted-only prompt review (1.34). The template and sample source projects now reference SDK 1.34.0, and the compilable SDK recipes document newer contracts. Historical signed/unsigned archives in `SamplePlugins/packaged/` remain untouched.
 
 Arclyra plugins extend Arclyra Writing Studio with optional commands, menu items, settings pages, workspace panels, story UI integrations, Smart Builder tools, AI-provider configuration helpers, and host-mediated data workflows. Plugins are distributed as `.arcplugin` packages, installed into the user's writable app-data area, discovered at runtime, and initialized through `Arclyra.PluginSdk`.
 

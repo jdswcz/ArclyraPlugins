@@ -2,7 +2,7 @@
 
 Checked against read-only `jdswcz/ArclyraWritingStudio` dev commit `bc66e153c636a25d23166ce41d04b8fb6015b294` (October 31, 2026): **SDK 1.34.0**, host behavior through **104**. Host milestones and SDK package versions are independent. Choose `minHostVersion` based on the newest SDK feature needed; use `104.0` for the complete checked behavioral baseline.
 
-The standalone SDK C# sources, packaging targets and project metadata match upstream; the package README is adapted for this repository. Examples/templates and signed/unsigned archives were not modified; some still reference 1.31.0 / host 78, while the SDK recipes use a local project reference. Neither NuGet publication nor any change to ArclyraWritingStudio is implied.
+The standalone SDK C# sources, packaging targets and project metadata match upstream; the package README is adapted for this repository. Template and SamplePlugin source now reference SDK 1.34.0; the template retains its minimal host 78 baseline, while the source-bound sample generator requires host 92. The SDK recipes reference the local project and cover the newer API contracts. Historical signed/unsigned archives in `SamplePlugins/packaged/` remain untouched. Neither NuGet publication nor any change to ArclyraWritingStudio is implied.
 
 ## Additive milestones
 

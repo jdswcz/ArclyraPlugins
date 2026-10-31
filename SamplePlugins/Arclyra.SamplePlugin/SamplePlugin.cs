@@ -97,7 +97,11 @@ public sealed class SamplePlugin : IArclyraPlugin
             Url: string.Empty,
             PromptPasteScript: string.Empty,
             ReadGeneratedChapterScript: string.Empty,
-            PluginConfigurationId: DemoAiGeneratorConfigurationId);
+            PluginConfigurationId: DemoAiGeneratorConfigurationId)
+        {
+            // SDK 1.33 / host 92: require a current story/chapter source lease.
+            RequireCurrentSourceSnapshot = true
+        };
     }
 
     internal static string GetDemoProviderStatus(IPluginContext context)
@@ -215,20 +219,39 @@ public sealed class SamplePlugin : IArclyraPlugin
         IProgress<PluginAiGenerationProgress> progress,
         CancellationToken cancellationToken)
     {
+        // The host only supplies this lease when the direct generator opts in.
+        // Fail closed if called from an anonymous/older generation context.
+        if (request.IsSourceSnapshotCurrent is not { } isSourceCurrent || !isSourceCurrent())
+            throw new InvalidOperationException("The sample generator needs a current source snapshot (host 92+).");
+
+        using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(
+            cancellationToken, request.SourceSnapshotInvalidationToken);
+        CancellationToken generationToken = linked.Token;
+
         progress.Report(new PluginAiGenerationProgress("Sample plugin is reading the rendered Smart Builder prompt…"));
-        await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+        await Task.Delay(TimeSpan.FromSeconds(2), generationToken);
+        if (!isSourceCurrent())
+            throw new InvalidOperationException("The chapter source changed during generation.");
 
         progress.Report(new PluginAiGenerationProgress("Sample plugin is preparing demo-only scene beats…"));
-        await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+        await Task.Delay(TimeSpan.FromSeconds(2), generationToken);
+        if (!isSourceCurrent())
+            throw new InvalidOperationException("The chapter source changed during generation.");
 
         progress.Report(new PluginAiGenerationProgress("Sample plugin is composing a demo-only chapter draft…"));
-        await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+        await Task.Delay(TimeSpan.FromSeconds(2), generationToken);
+        if (!isSourceCurrent())
+            throw new InvalidOperationException("The chapter source changed during generation.");
 
         progress.Report(new PluginAiGenerationProgress("Sample plugin is polishing the generated draft…"));
-        await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+        await Task.Delay(TimeSpan.FromSeconds(2), generationToken);
+        if (!isSourceCurrent())
+            throw new InvalidOperationException("The chapter source changed during generation.");
 
         progress.Report(new PluginAiGenerationProgress("Sample plugin is finalizing the response…"));
-        await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+        await Task.Delay(TimeSpan.FromSeconds(2), generationToken);
+        if (!isSourceCurrent())
+            throw new InvalidOperationException("The chapter source changed during generation.");
 
         string promptPreview = string.IsNullOrWhiteSpace(request.ChapterPrompt)
             ? "No chapter prompt was supplied."
@@ -250,6 +273,9 @@ public sealed class SamplePlugin : IArclyraPlugin
             "The protagonist pauses at the threshold, reviews the goal, chooses one concrete action, and leaves the scene changed. " +
             "Replace this sample handler with a real AI service integration in production plugins.";
 
+        generationToken.ThrowIfCancellationRequested();
+        if (!isSourceCurrent())
+            throw new InvalidOperationException("The chapter source changed before completing the demo draft.");
         progress.Report(new PluginAiGenerationProgress("Sample plugin finished the demo draft.", IsGenerating: false));
         return new PluginAiGenerationResult(draft, "Sample plugin returned a demo-only generated chapter draft.");
     }

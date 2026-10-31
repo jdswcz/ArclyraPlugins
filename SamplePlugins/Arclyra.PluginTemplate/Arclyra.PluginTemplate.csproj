@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <Version>0.1.1</Version>
+    <Version>0.1.2</Version>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <ArclyraPluginPackageName>Arclyra.PluginTemplate.arcplugin</ArclyraPluginPackageName>
   </PropertyGroup>
@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arclyra.PluginSdk" Version="1.31.0" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Arclyra.PluginSdk" Version="1.34.0" PrivateAssets="all" ExcludeAssets="runtime" />
   </ItemGroup>
 
 </Project>

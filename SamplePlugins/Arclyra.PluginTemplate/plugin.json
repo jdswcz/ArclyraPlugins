@@ -1,7 +1,7 @@
 {
   "id": "com.example.arclyra.plugins.template",
   "name": "Arclyra Plugin Template",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A minimal Arclyra plugin project template for plugin developers.",
   "author": "Example Author",
   "entryAssembly": "Arclyra.PluginTemplate.dll",

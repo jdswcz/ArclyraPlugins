@@ -104,6 +104,76 @@ public static class SdkUsageExamples
                 })]));
     }
 
+    // SDK 1.32 / host 86: typed local-summary progress, with status-only fallback.
+    // Construct on the UI thread if the callbacks update WPF controls.
+    public static IPluginStorySummaryProgress CreateSummaryProgress(
+        Action<string> onStatus, Action<PluginStorySummaryProgress> onPreview)
+        => new SummaryProgressAdapter(onStatus, onPreview);
+
+    private sealed class SummaryProgressAdapter : IPluginStorySummaryProgress
+    {
+        private readonly IProgress<string> statuses;
+        private readonly IProgress<PluginStorySummaryProgress> previews;
+
+        public SummaryProgressAdapter(
+            Action<string> onStatus, Action<PluginStorySummaryProgress> onPreview)
+        {
+            ArgumentNullException.ThrowIfNull(onStatus);
+            ArgumentNullException.ThrowIfNull(onPreview);
+            statuses = new Progress<string>(onStatus);
+            previews = new Progress<PluginStorySummaryProgress>(onPreview);
+        }
+
+        public void Report(string value) => statuses.Report(value);
+        public void Report(PluginStorySummaryProgress value) => previews.Report(value);
+    }
+
+    // SDK 1.33 / host 92: the runtime opt-in belongs to the *registered* generator.
+    // This flag is not persisted as a user's provider preference.
+    public static PluginAiConfiguration RequireCurrentSources(PluginAiConfiguration configuration)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+        return configuration with { RequireCurrentSourceSnapshot = true };
+    }
+
+    // Source-bound direct generation: caller must dispose this CTS and recheck the
+    // request's predicate at every stage/stream boundary, including before completion.
+    public static CancellationTokenSource BeginSourceBoundGeneration(
+        PluginAiGenerationRequest request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        if (request.IsSourceSnapshotCurrent is not { } isCurrent || !isCurrent())
+            throw new InvalidOperationException("The host did not supply a current source snapshot.");
+        cancellationToken.ThrowIfCancellationRequested();
+        return CancellationTokenSource.CreateLinkedTokenSource(
+            cancellationToken, request.SourceSnapshotInvalidationToken);
+    }
+
+    public static void VerifyCurrentSources(
+        PluginAiGenerationRequest request, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        if (request.IsSourceSnapshotCurrent?.Invoke() != true)
+            throw new InvalidOperationException("The generation source is no longer current.");
+    }
+
+    // Only for an interrupted, explicitly unapproved preview. Never use it as a
+    // PluginAiGenerationResult or append it to conversation history.
+    public static PluginAiGenerationIncompleteException IncompletePreview(
+        string exactUnapprovedDraft, bool wasCanceled)
+        => new("Generation stopped before completion.", exactUnapprovedDraft, wasCanceled);
+
+    // SDK 1.34 / host 104: only a host-verified first-party prompt-reviewer may
+    // provide cumulative fully validated suggestions on the optional typed channel.
+    // Ordinary plugins cannot register IPluginPromptReviewService.
+    public static void ReportValidatedPromptReviewSnapshot(
+        IProgress<string>? progress, PluginPromptReviewResult validatedSnapshot)
+    {
+        ArgumentNullException.ThrowIfNull(validatedSnapshot);
+        if (progress is IProgress<PluginPromptReviewResult> typed)
+            typed.Report(validatedSnapshot);
+    }
+
     // ui.aiGenerationToolbar + prompt.read + aiGeneration.browserAccess; SDK 1.31 / host 77.
     // Acquire during an explicit toolbar action; return from that action before awaiting lease work.
     public static IPluginBrowserAutomationSession BeginAutomation(
