@@ -22,6 +22,20 @@ DTOs are snapshots, not live host objects. Re-read after mutating if you need cu
 
 SDK 1.7 / host 43 adds `PluginChapterDto.CurrentDraftContent`: the saved working manuscript revision, then the displayed revision, then the latest legacy generated draft if no structured revision exists. An intentionally empty revision remains empty. `Content` is the outline, and `GeneratedContent` is the legacy draft collection; neither identifies the selected working revision. Re-read `GetStory` on each generation to include saved author edits. Unsaved editor text is not included.
 
+SDK **1.35 / host 115** adds the optional init-only `PluginChapterDto.CurrentDraftId` (no constructor/deconstruction change). It identifies the **structured working draft** when one exists, otherwise the **displayed structured draft**, whichever supplied `CurrentDraftContent`. If the content came solely from the latest legacy generated text, `CurrentDraftId` is `null` even if `CurrentDraftContent` is populated. Both values are `null` if there is no saved draft. The ID is a revision *identity*, not a content hash or change counter: edits may retain the same ID. Compare fresh snapshots and content when checking changes; use the host's source-bound generation lease for asynchronous generation.
+
+```csharp
+// Requires SDK 1.35, host >= 115 and story.read.
+PluginStoryDto? current = context.StoryDataService.GetStory(storyId);
+PluginChapterDto? chapterSnapshot = current?.Chapters.FirstOrDefault(c => c.Id == chapterId);
+if (chapterSnapshot is not null)
+{
+    string? savedProse = chapterSnapshot.CurrentDraftContent;  // null if no saved prose
+    string? revisionId = chapterSnapshot.CurrentDraftId;      // null for legacy-only text
+    // The manuscript may change after this snapshot; re-read before acting.
+}
+```
+
 Host 44 makes a successfully saved revision the current working revision, including edits to an older version in Manage generated content. Viewing revisions does not change Current; Use as current can explicitly select a different saved version. This fixes saved edits being omitted from the next chapter's context while another revision was still marked Current.
 
 ## Story and chapter mutations

@@ -32,6 +32,12 @@ public sealed record PluginChapterDto(
     /// Available in SDK 1.7 / host 43. Content remains the chapter outline.
     /// </summary>
     public string? CurrentDraftContent { get; init; }
+
+    /// <summary>
+    /// Stable ID of the revision supplying CurrentDraftContent. Null for legacy-only
+    /// text without a canonical draft. Available in SDK 1.35 / host 115.
+    /// </summary>
+    public string? CurrentDraftId { get; init; }
 }
 
 /// <summary>

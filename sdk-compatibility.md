@@ -1,8 +1,8 @@
 # SDK compatibility and migration
 
-Checked against read-only `jdswcz/ArclyraWritingStudio` dev commit `bc66e153c636a25d23166ce41d04b8fb6015b294` (October 31, 2026): **SDK 1.34.0**, host behavior through **104**. Host milestones and SDK package versions are independent. Choose `minHostVersion` based on the newest SDK feature needed; use `104.0` for the complete checked behavioral baseline.
+Checked against read-only `jdswcz/ArclyraWritingStudio` dev commit `6d99a5f62fcd8da2f4fcc71cf1b16caa9bcf41a4` (November 2, 2026): **SDK 1.35.0**, host behavior through **115**. Host milestones and SDK package versions are independent. Choose `minHostVersion` based on the newest SDK feature needed; use `115.0` for the complete checked behavioral baseline.
 
-The standalone SDK C# sources, packaging targets and project metadata match upstream; the package README is adapted for this repository. Template and SamplePlugin source now reference SDK 1.34.0; the template retains its minimal host 78 baseline, while the source-bound sample generator requires host 92. The SDK recipes reference the local project and cover the newer API contracts. Historical signed/unsigned archives in `SamplePlugins/packaged/` remain untouched. Neither NuGet publication nor any change to ArclyraWritingStudio is implied.
+The standalone SDK C# sources, packaging targets and project metadata match upstream; the package README is adapted for this repository. Template and SamplePlugin source now reference SDK 1.35.0; the template retains its minimal host 78 baseline, while the source-bound sample generator requires host 92. The SDK recipes reference the local project and cover the newer API contracts. Historical signed/unsigned archives in `SamplePlugins/packaged/` remain untouched. Neither NuGet publication nor any change to ArclyraWritingStudio is implied.
 
 ## Additive milestones
 
@@ -42,14 +42,15 @@ The standalone SDK C# sources, packaging targets and project metadata match upst
 | 1.32 | 86 | Optional `IPluginStorySummaryProgress`: typed transient cumulative previews and source-character progress. |
 | 1.33 | 92 | Opt-in source-bound direct generation lease and unapproved interrupted-preview exception; host 93 adds explicit keep/restart choices. |
 | 1.34 | 102 | Trusted-only read-only prompt-review contracts; host 104 optionally streams validated cumulative suggestion snapshots. |
+| 1.35 | 115 | Optional `PluginChapterDto.CurrentDraftId` identifies the saved structured working/displayed revision supplying `CurrentDraftContent`; null for legacy-only text. |
 
 SDK 1.6 also adds built-in [chapter editor actions](editor-actions.md). Reusable [prompt-entry versions](prompt-entry-versions.md) and their assignments are part of the current baseline; older default interface implementations throw `NotSupportedException`. Host 58 groups prompt-detail registrations into **AI tools** and supplies an owned-toolbar return action without changing SDK signatures.
 
-The current SDK assembly identity is `1.2.0.0`, while its package version is `1.34.0` and its file version is `1.34.0.0`. Do not infer API support from assembly identity alone. Additive init properties preserve earlier positional constructors; they can be null when a context on the current SDK does not supply an optional service. Default interface members preserve older implementations on the current SDK; they cannot add missing members to an older installed SDK binary. New consumers need the documented minimum host as well as missing-service/callback checks. Do not use a null check as a substitute for minimum-host validation.
+The current SDK assembly identity is `1.2.0.0`, while its package version is `1.35.0` and its file version is `1.35.0.0`. Do not infer API support from assembly identity alone. Additive init properties preserve earlier positional constructors; they can be null when a context on the current SDK does not supply an optional service. Default interface members preserve older implementations on the current SDK; they cannot add missing members to an older installed SDK binary. New consumers need the documented minimum host as well as missing-service/callback checks. Do not use a null check as a substitute for minimum-host validation.
 
 ## Migration choices
 
-- **Saved prose:** read `PluginChapterDto.CurrentDraftContent` from a fresh story snapshot. `Content` is the chapter outline; old generated-answer caches and alternative revisions are not authoritative manuscript text.
+- **Saved prose:** read `PluginChapterDto.CurrentDraftContent` from a fresh story snapshot. On host 115+ use `CurrentDraftId` to identify the structured working/displayed revision; a null ID can still accompany nonempty legacy prose. A stable ID alone does **not** prove unchanged text, and unsaved editor content is excluded. `Content` is the chapter outline; old generated-answer caches and alternative revisions are not authoritative manuscript text.
 - **Prompt versions:** prefer reusable version APIs over the obsolete per-chapter customization adapters. Main is virtual and read-only through version APIs. Inspect usage before deletion and preserve the distinction between source IDs and story prompt-detail IDs.
 - **Delayed UI actions:** use the supplied cancellation and freshness callbacks, then use the single-use apply callback only after approval. A preflight is not a lease; apply revalidates independently. Release retained callbacks on completion/unload.
 - **Sensitive data:** persist prompts, generated answers, feedback and learned data through protected workspace storage. Use the writable data directory for model/runtime downloads and non-sensitive settings. Do not log creative content or secrets.

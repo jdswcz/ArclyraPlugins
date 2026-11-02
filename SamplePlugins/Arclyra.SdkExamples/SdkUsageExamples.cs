@@ -5,6 +5,27 @@ namespace Arclyra.SdkExamples;
 /// <summary>Opt-in recipes for ordinary plugins; no startup inference or manuscript saving.</summary>
 public static class SdkUsageExamples
 {
+    /// <summary>Saved manuscript text paired with its canonical revision identity.</summary>
+    /// <param name="DraftId">Null for legacy-only text or no structured revision.</param>
+    /// <param name="DraftContent">Null if the chapter has no saved draft.</param>
+    public sealed record SavedWorkingRevision(string? DraftId, string? DraftContent);
+
+    // story.read; SDK 1.35 / host 115. This snapshot excludes unsaved editor text.
+    // DraftId identifies a structured working/displayed revision, not a content version.
+    public static SavedWorkingRevision? ReadSavedWorkingRevision(
+        IPluginContext context, string storyId, string chapterId)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentException.ThrowIfNullOrWhiteSpace(storyId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(chapterId);
+        PluginStoryDto? story = context.StoryDataService.GetStory(storyId);
+        PluginChapterDto? chapter = story?.Chapters.FirstOrDefault(
+            item => string.Equals(item.Id, chapterId, StringComparison.Ordinal));
+        return chapter is null
+            ? null
+            : new SavedWorkingRevision(chapter.CurrentDraftId, chapter.CurrentDraftContent);
+    }
+
     // story.read; SDK 1.30 / host 72. Reading never triggers generation.
     public static Task<PluginStoryMemoryDto> ReadMemoryAsync(
         IPluginContext context, PluginStoryMemoryRequest request, CancellationToken cancellationToken)

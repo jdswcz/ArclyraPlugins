@@ -1,10 +1,11 @@
 # Compilable SDK recipes
 
-[SdkUsageExamples.cs](SdkUsageExamples.cs) contains opt-in SDK **1.34.0** helpers, verified against read-only ArclyraWritingStudio **dev** commit `bc66e153c636a25d23166ce41d04b8fb6015b294`. It is a class library, not an installable plugin. Nothing registers or generates automatically; copy or call only the helpers your plugin needs. The project references the repository SDK source so recipes can be compiled before a NuGet release.
+[SdkUsageExamples.cs](SdkUsageExamples.cs) contains opt-in SDK **1.35.0** helpers, verified against read-only ArclyraWritingStudio **dev** commit `6d99a5f62fcd8da2f4fcc71cf1b16caa9bcf41a4`. It is a class library, not an installable plugin. Nothing registers or generates automatically; copy or call only the helpers your plugin needs. The project references the repository SDK source so recipes can be compiled before a NuGet release.
 
 | Helper | Minimum host | Manifest capabilities | Caller responsibility |
 | --- | --- | --- | --- |
 | `ReadMemoryAsync` | 72.0 | `story.read` | Inspect `Status`; outdated text is for review, not current continuity. |
+| `ReadSavedWorkingRevision` | 115.0 | `story.read` | Read `CurrentDraftContent` and structured `CurrentDraftId` from the same fresh chapter snapshot; null ID may mean legacy-only text. Recheck the source before relying on it. |
 | `RefreshMemoryAsync` | 72.0 | `story.read`, `ai.summarize` | Invoke after an explicit request; outdated author edits require approval in host UI. |
 | `SummarizeAsync` | 70.0 | `ai.summarize` | Supply complete prose; recheck source freshness and review the returned proposal. |
 | `ReviewPromptFields` | 66.0 | `ui.dialogs`, `prompt.read`, `ui.aiGenerationToolbar` | Use in an owned toolbar invocation. After confirmation, revalidate the website before inserting either field. Browser insertion also needs `aiGeneration.browserAccess`. |
@@ -14,9 +15,13 @@
 | `RequireCurrentSources`, `BeginSourceBoundGeneration`, `VerifyCurrentSources`, `IncompletePreview` | 92.0 | `ai.generation` | Opt in on the generator runtime registration; dispose the linked CTS; recheck at boundaries; never commit an unapproved preview. Host 93 supplies restart decisions. |
 | `ReportValidatedPromptReviewSnapshot` | 104.0 | **First-party trust only**, not a manifest capability | Optional typed progress for a verified `IPluginPromptReviewService` registered on host 102+. Report complete validated findings only. Ordinary plugins cannot register a reviewer. |
 
-For memory, create `new PluginStoryMemoryRequest(storyId, BeforeChapterId: chapterId)` for preceding chapters, or supply both `ChapterId` and `DraftId` for one exact revision. Do not combine these modes. Whole-story mode has no boundary. The default word ceiling is 500.
+For memory, create `new PluginStoryMemoryRequest(storyId, BeforeChapterId: chapterId)` for preceding chapters, or supply both `ChapterId` and `DraftId` for one exact revision. On host 115+, `CurrentDraftId` from a fresh `GetStory` snapshot can identify a canonical working revision; do not assume a legacy-only draft has an ID. Do not combine these modes. Whole-story mode has no boundary. The default word ceiling is 500.
 
 The browser helper only acquires a lease. Return from the initiating toolbar action before awaiting DOM work: the host waits for that invocation to finish. Keep the lease and worker task in plugin-owned state; use the **session** cancellation token for later operations, await each `RunFrameScriptAsync`/`PublishPreviewAsync` result and stop on rejection. Publish complete current-chapter staging, not the cumulative story, and await acceptance before the next DOM cycle. Dispose the lease on completion, explicit Stop and shutdown; await owned work during shutdown. Do not retain the invocation callbacks or use its token as the session lifetime. See [active browser automation](../../ui-extension-api.md#active-browser-automation-sdk-131--host-77).
+
+## Current saved working revision (SDK 1.35 / host 115)
+
+`ReadSavedWorkingRevision` selects a chapter from a fresh `GetStory` result and returns the pair (`CurrentDraftId`, `CurrentDraftContent`). The ID identifies the structured working or displayed revision; when the host falls back to a legacy text entry, the ID is null even when content exists. A revision ID can stay the same after edits, so it is **not** a freshness token. This is a host 115 feature; do not invoke the helper from a plugin whose minimum host is older. Unsaved editor text is not part of a story snapshot. See [story data API](../../story-data-api.md#snapshot-reads).
 
 ## Source-bound generation and prompt review limitations
 
