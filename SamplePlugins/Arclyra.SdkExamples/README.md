@@ -1,11 +1,12 @@
 # Compilable SDK recipes
 
-[SdkUsageExamples.cs](SdkUsageExamples.cs) contains opt-in SDK **1.35.0** helpers, verified against read-only ArclyraWritingStudio **dev** commit `6d99a5f62fcd8da2f4fcc71cf1b16caa9bcf41a4`. It is a class library, not an installable plugin. Nothing registers or generates automatically; copy or call only the helpers your plugin needs. The project references the repository SDK source so recipes can be compiled before a NuGet release.
+[SdkUsageExamples.cs](SdkUsageExamples.cs) contains opt-in SDK **1.39.0** helpers, verified against read-only ArclyraWritingStudio **dev** commit `520e219a77c708a362142c323a42a3c57e3bfe1b`. It is a class library, not an installable plugin. Nothing registers or generates automatically; copy or call only the helpers your plugin needs. The project references the repository SDK source so recipes can be compiled before a NuGet release.
 
 | Helper | Minimum host | Manifest capabilities | Caller responsibility |
 | --- | --- | --- | --- |
 | `ReadMemoryAsync` | 72.0 | `story.read` | Inspect `Status`; outdated text is for review, not current continuity. |
 | `ReadSavedWorkingRevision` | 115.0 | `story.read` | Read `CurrentDraftContent` and structured `CurrentDraftId` from the same fresh chapter snapshot; null ID may mean legacy-only text. Recheck the source before relying on it. |
+| `RegisterPublicKittyHelp` | 150.0 | **None** | Register public, non-sensitive static usage topics during plugin initialization. This does not expose chat, story context or inference access. |
 | `RefreshMemoryAsync` | 72.0 | `story.read`, `ai.summarize` | Invoke after an explicit request; outdated author edits require approval in host UI. |
 | `SummarizeAsync` | 70.0 | `ai.summarize` | Supply complete prose; recheck source freshness and review the returned proposal. |
 | `ReviewPromptFields` | 66.0 | `ui.dialogs`, `prompt.read`, `ui.aiGenerationToolbar` | Use in an owned toolbar invocation. After confirmation, revalidate the website before inserting either field. Browser insertion also needs `aiGeneration.browserAccess`. |
@@ -22,6 +23,12 @@ The browser helper only acquires a lease. Return from the initiating toolbar act
 ## Current saved working revision (SDK 1.35 / host 115)
 
 `ReadSavedWorkingRevision` selects a chapter from a fresh `GetStory` result and returns the pair (`CurrentDraftId`, `CurrentDraftContent`). The ID identifies the structured working or displayed revision; when the host falls back to a legacy text entry, the ID is null even when content exists. A revision ID can stay the same after edits, so it is **not** a freshness token. This is a host 115 feature; do not invoke the helper from a plugin whose minimum host is older. Unsaved editor text is not part of a story snapshot. See [story data API](../../story-data-api.md#snapshot-reads).
+
+## Kitty public help (SDK 1.39 / host 150)
+
+Call `RegisterPublicKittyHelp` once from `InitializeAsync` on host 150+, before returning. The SDK accepts up to 24 unique, plugin-local slugs (lowercase ASCII alphanumeric with hyphen separators), with titles up to 120, keywords up to 500, and help text up to 2,000 characters. Supply only static public usage instructions and exact visible UI labels. The registration is revoked on unload, disable or reload. It does not launch inference or authorize Kitty's navigation tools. The example fails clearly if the optional host registry is absent; the minimal template does not call it and therefore retains its earlier minimum host.
+
+`IPluginAssistantChatService` (SDK 1.38 / host 140) and `IPluginArclyraAiOnboarding` (SDK 1.36/1.37 / host 134/136) are available only to the verified Arclyra AI first-party component. An ordinary sample cannot register them. See [host services](../../host-services-api.md) and [trusted components](../../trusted-components.md).
 
 ## Source-bound generation and prompt review limitations
 

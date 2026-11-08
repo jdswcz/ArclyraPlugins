@@ -31,6 +31,9 @@ public interface IPluginContext
     /// <summary>Optional host-owned continuity memory; null on older hosts.</summary>
     IPluginStoryMemoryService? StoryMemoryService => null;
 
+    /// <summary>Optional registry for public, static plugin help. Register topics during initialization.</summary>
+    IPluginKittyHelpRegistry? KittyHelp => null;
+
     /// <summary>
     /// Gets the current Arclyra application version.
     /// </summary>

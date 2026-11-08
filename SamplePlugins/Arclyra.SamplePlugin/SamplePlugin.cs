@@ -50,6 +50,14 @@ public sealed class SamplePlugin : IArclyraPlugin
         _context = context;
         context.Logger.LogInformation("Arclyra Sample Plugin initialized with demo-only extension points.");
 
+        // SDK 1.39 / host 150: a public, static help topic for Kitty.
+        // Registration does not provide access to Kitty conversations or story content.
+        context.KittyHelp?.Register(new PluginKittyHelpTopic(
+            "demo-provider",
+            "Try the sample provider",
+            "sample demo provider about blank",
+            "Open the Arclyra Sample Plugin settings and register the demo provider. It opens about:blank for testing the browser workflow and never contacts an AI service."));
+
         RegisterCommands(context);
         RegisterMenuItems(context);
         RegisterSettingsPage(context);

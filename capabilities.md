@@ -64,3 +64,7 @@ Capabilities are declared in `plugin.json` and gate SDK services at runtime. The
   }
 }
 ```
+
+## Kitty help and trust (SDK 1.39 / host 150)
+
+`IPluginContext.KittyHelp` registers static, public usage topics without any additional capability. The registry exposes neither conversation data nor manuscript/story context. Do **not** request `story.read`, `ai.generation` or other capabilities merely to register help. The first-party Kitty chat backend (`IPluginAssistantChatService`, SDK 1.38 / host 140) is trusted-only and is **not** unlockable with manifest capabilities.

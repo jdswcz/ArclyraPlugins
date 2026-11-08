@@ -28,4 +28,11 @@ public interface IPluginFirstPartyUiService
     /// <summary>Registers a read-only local reviewer for the host-owned Smart Builder approval surface.</summary>
     void RegisterPromptReviewer(IPluginPromptReviewService service)
         => throw new NotSupportedException("Prompt review requires Arclyra 102 or newer.");
+
+    /// <summary>Older hosts do not expose Kitty chat registration.</summary>
+    bool SupportsAssistantChat => false;
+
+    /// <summary>Registers the local read-only Kitty backend. Revoked on component unload.</summary>
+    void RegisterAssistantChat(IPluginAssistantChatService service)
+        => throw new NotSupportedException("Kitty chat requires Arclyra 140 or newer.");
 }

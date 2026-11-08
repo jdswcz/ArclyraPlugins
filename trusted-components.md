@@ -25,3 +25,15 @@ of arbitrary plugin code.
 Only the verified allowlisted first-party component receives the optional `IPluginFirstPartyUiService.RegisterPromptReviewer(IPluginPromptReviewService)` registration. It permits local, read-only prompt-review recommendations, never direct modification or implicit approval. `IsReady` allows the host to offer setup. Host 104 optionally accepts validated cumulative result progress. Registration and outstanding work are revoked on component unload; older hosts reject the optional registration method.
 
 Ordinary plugins cannot unlock this service through capability declarations, an ordinary developer signature or self-declared trusted status. See [local prompt review contracts](smart-builder-api.md#local-prompt-review-sdk-134--host-102).
+
+## First-launch AI onboarding (SDK 1.36/1.37 / host 134/136)
+
+The host accepts `IPluginArclyraAiOnboarding` **only** from an already loaded, signature-verified Arclyra AI Trusted Component; ordinary plugins cannot register this interface or acquire trust by naming it. `IsReadyForOnboarding` reports whether the local model, runtime and refusal repair are ready. `InstallCompactForOnboardingAsync(confirm, progress, cancellationToken)` reuses ready assets or sets up Compact with an explicit download/disk approval callback. Approval is required before downloads. Cancellation retains resumable partial downloads; callers must handle cancellation and setup errors.
+
+`PluginArclyraAiDownloadPlan` reports model name, remaining download bytes and disk requirements. `PluginArclyraAiSetupProgress` reports message, optional completion fraction, stage, ready state and optional byte counters. SDK 1.37 / host 136 includes `PluginArclyraAiSetupStage.RefusalRepair`. The first-run setup prepares CUDA plus CPU fallback when applicable and the managed CPU refusal-repair helper before marking setup ready. Normal Arclyra AI model selection and benchmarking remain separate.
+
+## Kitty assistant registration (SDK 1.38 / host 140)
+
+The same first-party verification gate controls `IPluginFirstPartyUiService.SupportsAssistantChat` and `RegisterAssistantChat(IPluginAssistantChatService)`. Older hosts return `false` or throw `NotSupportedException`. The single local chat backend receives only bounded host-approved evidence and is canceled/revoked when the verified component unloads. The API is read-only and grants no plugin-wide story, file or UI-write permissions.
+
+Public plugin help registration via `IPluginContext.KittyHelp` (SDK 1.39 / host 150) is a **separate ordinary-plugin API**. It grants no trusted component identity or access to chat contents. See [host services](host-services-api.md#plugin-help-for-kitty-sdk-139--host-150).

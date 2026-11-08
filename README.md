@@ -1,8 +1,8 @@
 # Arclyra Plugin Developer Guide
 
-This developer guide documents the Arclyra SDK **1.35.0** and host behavior through **115**, compared with read-only `jdswcz/ArclyraWritingStudio` **dev** commit `6d99a5f62fcd8da2f4fcc71cf1b16caa9bcf41a4` (November 2, 2026). [Compatibility and migration](sdk-compatibility.md) lists feature-specific host minima. The source synchronization does not itself publish a NuGet package or host release.
+This developer guide documents Arclyra SDK **1.39.0** and host behavior through **150**, compared with read-only `jdswcz/ArclyraWritingStudio` **dev** commit `520e219a77c708a362142c323a42a3c57e3bfe1b` (November 8, 2026). [Compatibility and migration](sdk-compatibility.md) lists feature-specific host minima. The source synchronization does not itself publish a NuGet package or host release.
 
-`src/Arclyra.PluginSdk` contains the matching C# contracts and packaging helpers (except for a repository-specific package README). This update covers live summary previews (SDK 1.32), source-bound generation (1.33), trusted-only prompt review (1.34), and the working-draft revision identity (1.35). The template and sample source projects now reference SDK 1.35.0, and the compilable SDK recipes document newer contracts. Historical signed/unsigned archives in `SamplePlugins/packaged/` remain untouched.
+`src/Arclyra.PluginSdk` contains the matching C# contracts and packaging helpers (except for a repository-specific package README). This update covers summary previews (1.32), source-bound generation (1.33), trusted-only prompt review (1.34), working-draft identity (1.35), first-launch AI setup (1.36/1.37), trusted local Kitty chat (1.38), and public plugin help topics for Kitty (1.39). The template and sample source projects now reference SDK 1.39.0, and the compilable SDK recipes document newer contracts. Historical signed/unsigned archives in `SamplePlugins/packaged/` remain untouched.
 
 Arclyra plugins extend Arclyra Writing Studio with optional commands, menu items, settings pages, workspace panels, story UI integrations, Smart Builder tools, AI-provider configuration helpers, and host-mediated data workflows. Plugins are distributed as `.arcplugin` packages, installed into the user's writable app-data area, discovered at runtime, and initialized through `Arclyra.PluginSdk`.
 
@@ -43,7 +43,7 @@ Minimal project file for a WPF-capable plugin targeting this reference baseline 
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arclyra.PluginSdk" Version="1.35.0" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Arclyra.PluginSdk" Version="1.39.0" PrivateAssets="all" ExcludeAssets="runtime" />
   </ItemGroup>
 </Project>
 ```
@@ -155,6 +155,12 @@ Read these pages for the API details that were split out of this root guide:
 **SDK 1.34 / host 102** adds `IPluginPromptReviewService`, bounded review targets and suggestions, and `RegisterPromptReviewer` available only to verified first-party components. Host 104 optionally supports cumulative validated findings through `IProgress<PluginPromptReviewResult>`. Host approval remains mandatory. See [local prompt review](smart-builder-api.md#local-prompt-review-sdk-134--host-102).
 
 **SDK 1.35 / host 115** adds `PluginChapterDto.CurrentDraftId`, the stable identity of the structured revision supplying `CurrentDraftContent`. It is null for legacy-only generated text, even when the draft content is nonempty. The property does not expose unsaved editor text or serve as an edit-generation counter. See [story data snapshots](story-data-api.md#snapshot-reads).
+
+**SDK 1.36 / host 134** adds verified-first-party `IPluginArclyraAiOnboarding` for first-launch local model setup. **SDK 1.37 / host 136** adds the `RefusalRepair` setup stage; the trusted installer prepares GPU runtime with CPU fallback where appropriate and asks for download approval. Ordinary plugins cannot register this trusted contract. See [trusted onboarding](trusted-components.md#first-launch-ai-onboarding-sdk-136137--host-134136).
+
+**SDK 1.38 / host 140** adds a verified-first-party local Kitty chat backend (`IPluginAssistantChatService`, request/source/turn/progress/result DTOs, `SupportsAssistantChat` and `RegisterAssistantChat`). It is read-only, source-bound and cancellable; it grants no chat/automation privileges to ordinary plugins. See [assistant chat](host-services-api.md#kitty-chat-sdk-138--host-140).
+
+**SDK 1.39 / host 150** lets **ordinary plugins** register public static help topics for Arclyra Kitty using `IPluginContext.KittyHelp` and `PluginKittyHelpTopic`, with no extra capability. It does **not** expose Kitty conversations or story data to those plugins. See [Kitty help API](host-services-api.md#plugin-help-for-kitty-sdk-139--host-150).
 
 The SDK package version differs from host version. The assembly identity remains `1.2.0.0`. On older hosts, optional services or callbacks may be missing; use minimum-host checks as well as feature checks.
 
@@ -296,4 +302,4 @@ If the matching version is not available from NuGet, add the local output as a p
 dotnet nuget add source "C:\path\to\ArclyraPlugins\artifacts\nuget" --name ArclyraLocal
 ```
 
-Reference SDK `1.35.0` when the matching package is published, or build against this local project. Set `minHostVersion` to the highest API requirement: `86.0` for typed summary previews, `92.0` for source-bound generation, `102.0` for prompt review, `104.0` for optional cumulative review results, and `115.0` if your plugin reads `PluginChapterDto.CurrentDraftId`. Do not bundle `Arclyra.PluginSdk.dll` in the final `.arcplugin`. Local pack is not NuGet publication.
+Reference SDK `1.39.0` when the matching package is published, or build against this local project. Set `minHostVersion` to the highest API requirement: `86.0` for typed summary previews, `92.0` for source-bound generation, `102.0` for trusted prompt review, `104.0` for cumulative review results, `115.0` for `CurrentDraftId`, `134.0`/`136.0` for trusted Arclyra AI onboarding, `140.0` for trusted Kitty chat, and `150.0` for ordinary plugin help topics. Do not bundle `Arclyra.PluginSdk.dll` in the final `.arcplugin`. Local pack is not NuGet publication.

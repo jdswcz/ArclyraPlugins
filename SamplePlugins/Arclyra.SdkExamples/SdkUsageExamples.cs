@@ -26,6 +26,21 @@ public static class SdkUsageExamples
             : new SavedWorkingRevision(chapter.CurrentDraftId, chapter.CurrentDraftContent);
     }
 
+    // SDK 1.39 / host 150. Register only public, static instructions in InitializeAsync.
+    // No manifest capability is required. This grants no access to Kitty history,
+    // prompts, story sources, model inference or UI/navigation privileges.
+    public static void RegisterPublicKittyHelp(IPluginContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        IPluginKittyHelpRegistry registry = context.KittyHelp
+            ?? throw new NotSupportedException("Public Kitty help requires host 150 or newer.");
+        registry.Register(new PluginKittyHelpTopic(
+            "sample-workflow",
+            "Using the example workflow",
+            "sample example plugin workflow help",
+            "Open Plugins, choose the installed example plugin, and follow its settings page."));
+    }
+
     // story.read; SDK 1.30 / host 72. Reading never triggers generation.
     public static Task<PluginStoryMemoryDto> ReadMemoryAsync(
         IPluginContext context, PluginStoryMemoryRequest request, CancellationToken cancellationToken)

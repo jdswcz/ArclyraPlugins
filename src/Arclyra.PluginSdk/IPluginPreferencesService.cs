@@ -18,7 +18,7 @@ public interface IPluginPreferencesService
 /// <param name="AppearanceTheme">The selected host appearance theme.</param>
 /// <param name="UseLargeText">Whether large text scaling is enabled.</param>
 /// <param name="PreventScreenshots">Whether screenshot prevention is enabled.</param>
-/// <param name="UseFullWidthGlobalSettings">Whether global settings open in full-width mode.</param>
+/// <param name="UseFullWidthGlobalSettings">Whether global settings open in full-width mode. Current hosts always report true.</param>
 /// <param name="WorkflowWindowPreference">The user's workflow window placement preference.</param>
 public sealed record PluginUserPreferencesDto(
     string AppearanceTheme,

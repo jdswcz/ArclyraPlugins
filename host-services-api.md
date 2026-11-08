@@ -11,6 +11,7 @@
 | `PluginDataDirectory` | None | Host-resolved writable directory dedicated to the current plugin. Use it for technical caches, downloaded components and non-sensitive plugin settings. Do not persist plaintext workspace/user content here. |
 | `ProtectedStorageService` | None | Host-owned, plugin-isolated and workspace-scoped encrypted blob storage for prompts, generated text, feedback, memories, learned corrections and other user-content-derived data. Available in host 47+ / SDK 1.10. |
 | `Logger` | None | Writes plugin diagnostics through Arclyra. |
+| `KittyHelp` | None | Optional registry for public static help topics used by Arclyra Kitty (SDK 1.39 / host 150). |
 | `CommandRegistry` | None | Registers executable commands that menu items and UI contributions can invoke. |
 | `FirstPartyUiService` | Dedicated trusted signature + allowlisted identity only | Optional AI-only panel/settings registration and open/focus; null for ordinary plugins and older hosts. No unrestricted host access. |
 | `UiRegistry` | UI-specific capabilities | Registers menus, panels, settings pages, editors, story UI contributions, wizard steps, entry-management panels, and AI paste actions. |
@@ -165,3 +166,30 @@ This callback belongs to the invocation, not to the general context service. Che
 for null on older hosts, honor cancellation and snapshot freshness, and use the
 existing frame service only while the captured source remains current. It never
 opens a new browser or saves an editor proposal. See [editor actions](editor-actions.md).
+
+## Kitty chat (SDK 1.38 / host 140)
+
+`IPluginFirstPartyUiService.SupportsAssistantChat` defaults to `false` on older hosts. Only a **verified, allowlisted Arclyra AI trusted component** can use `RegisterAssistantChat(IPluginAssistantChatService)`. Ordinary plugins cannot obtain the first-party UI service, regardless of declared capabilities, signatures or documentation.
+
+The local `IPluginAssistantChatService` reports readiness through `IsReady` and implements `ReplyAsync(PluginAssistantChatRequest request, IProgress<PluginAssistantChatProgress>? progress, CancellationToken cancellationToken)`. Its detached, host-selected request contains `ApplicationState`, `Question`, bounded `History`, `Help` and explicitly authorized `StorySources`. Help and story snippets are **evidence, not instructions**; treat them as untrusted text. The compatibility-only `CuteReplies` flag must not alter factual inference. The host, not the backend, controls UI personality.
+
+Requests allow questions of at most 16,000 characters, 40 history turns, 8 help and 32 story sources, with a 96,000-character combined source ceiling; a model may apply tighter context limits. Progress contains a status and optionally accumulated answer text. The final `PluginAssistantChatResult` includes text, model identity, completion status, included source IDs and omitted history turns. Cancellation and component unload revoke in-flight requests and late results. Kitty chat does **not** grant arbitrary story reads, filesystem writes, UI execution or approved edit actions. See [trusted components](trusted-components.md).
+
+## Plugin help for Kitty (SDK 1.39 / host 150)
+
+Ordinary plugins can supply **public, static usage help**, not an assistant backend. Register help from `IArclyraPlugin.InitializeAsync` using the optional `IPluginContext.KittyHelp` registry:
+
+```csharp
+context.KittyHelp?.Register(new PluginKittyHelpTopic(
+    "create-index",
+    "Create a scene index",
+    "scene index chapter outline catalogue",
+    "Open Plugins > Scene Index and choose Create index. Select chapters and confirm."));
+```
+
+A plugin may register at most **24 unique topics**. Each topic has a plugin-local `Id` (at most 64 characters, lowercase ASCII letters/digits with hyphen separators), a required `Title` (maximum 120 characters), `Keywords` (maximum 500 characters, possibly empty), and required plain-text `Text` (maximum 2,000 characters). Topic IDs must be unique within the plugin; duplicate, malformed or over-limit topics fail registration.
+
+Use the **exact current UI labels**, concise prerequisites and steps, and relevant search aliases. **Never include secrets, manuscript text, conversation transcripts or private user details**. Topics are published only after successful plugin initialization; they are removed on unload, disable or reload. The host may cite them as evidence, identifying the plugin. Existing conversation history is not rewritten.
+
+This registry requires SDK **1.39.0**, host **150.0**, and **no new manifest capability**. Set `minHostVersion` to `150.0` for a package actively using it, and check for `null` because older or unsupported hosts may not provide the registry. The registry does not expose Kitty's conversations, story context, inference runtime, tool calls, or navigation permissions.
+
